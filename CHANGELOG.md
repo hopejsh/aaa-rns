@@ -3,6 +3,17 @@
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Pending
+- **RRID `SCR_028836`** was assigned by the SciCrunch registry on submission, but the
+  record is still `Pending` curation and `scicrunch.org/resolver/RRID:SCR_028836`
+  returns 404. It was briefly added to the READMEs, the landing page, `CITATION.cff`
+  and `codemeta.json`, then reverted: publishing an identifier that does not resolve is
+  the same defect this product exists to prevent, and `CITATION.cff` in particular is
+  harvested by tools that would propagate a dead identifier further than the mistake.
+  It goes back in once the resolver answers.
+
 ## [2.0.0] — 2026-08-14
 
 First public release.
