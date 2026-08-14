@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1280px; height:640px; overflow:hidden; }
+  body {
+    background:#1d2d3d;
+    font-family:'Barlow','Helvetica Neue',sans-serif;
+    color:#f2f2f3; display:flex; align-items:center;
+    position:relative;
+  }
+  /* 왼쪽 위에서 아래로 흐르는 미묘한 광원 — 단색 배경의 밋밋함만 덜어낸다 */
+  body::before { content:''; position:absolute; inset:0;
+    background:radial-gradient(1100px 620px at 8% -10%, rgba(122,162,214,.18), transparent 62%); }
+  .left { width:660px; padding:0 0 0 64px; position:relative; z-index:2; }
+  .kicker { font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    letter-spacing:.22em; font-size:19px; color:#7aa2d6; margin-bottom:14px; }
+  h1 { font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:74px; line-height:.98; letter-spacing:-.005em; margin-bottom:22px; }
+  h1 em { font-style:normal; color:#8fb8e8; }
+  .sub { font-size:24px; line-height:1.42; color:rgba(242,242,243,.80); margin-bottom:30px; }
+  .meta { display:flex; gap:9px; flex-wrap:wrap; }
+  .chip { font-size:15.5px; letter-spacing:.02em; padding:7px 15px; border-radius:999px;
+    border:1px solid rgba(242,242,243,.24); color:rgba(242,242,243,.88); }
+  .dev { position:absolute; left:64px; bottom:38px; font-size:15px;
+    color:rgba(242,242,243,.50); letter-spacing:.03em; z-index:2; }
+  /* 오른쪽: 실제 화면의 '검증 게이트' 블록만 잘라 보여준다 */
+  .shot { position:absolute; right:-30px; top:128px; width:648px; height:384px;
+    border-radius:14px; overflow:hidden; z-index:1;
+    box-shadow:0 26px 64px rgba(0,0,0,.46); border:1px solid rgba(242,242,243,.14);
+    background:#fff; }
+  .shot img { position:absolute; width:2560px; left:-470px; top:-955px; }
+  .fade { position:absolute; inset:0;
+    background:linear-gradient(100deg, #1d2d3d 0%, rgba(29,45,61,.86) 15%, rgba(29,45,61,0) 46%); }
+</style></head><body>
+  <div class="shot"><img src="shot.png"><div class="fade"></div></div>
+  <div class="left">
+    <div class="kicker">RESEARCH NOTEBOOK · OFFLINE</div>
+    <h1>It refuses to seal<br>a claim your evidence<br><em>doesn't support.</em></h1>
+    <div class="sub">Drafts each note from your own lab logs, links every<br>sentence to an evidence ID, and blocks the rest.</div>
+    <div class="meta">
+      <span class="chip">No server</span><span class="chip">No cloud</span>
+      <span class="chip">한국어 · English · 日本語</span><span class="chip">Apache-2.0</span>
+    </div>
+  </div>
+  <div class="dev">AAA-RNS v2.0 · Developed by Seung Ho Jung</div>
+</body></html>
