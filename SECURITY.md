@@ -25,6 +25,20 @@ more than a list of features:
 - **API keys for optional AI engines are stored in `data/llm.json` in clear text**, and in
   shared-folder mode the whole team can read them. Use a key scoped to this purpose.
 
+## Supply chain
+
+This repository has **no runtime dependencies** — the parsers, generators, charts and hash chain
+are all in this tree, and the application makes no network requests. The only externally authored
+code that runs anywhere near it is the GitHub Actions used by CI and the release workflow, and the
+release workflow holds `contents: write`.
+
+Those actions are therefore **pinned to full commit SHAs, not to tags**. A tag like `@v2` can be
+moved by the action's owner at any time; a commit SHA cannot. Dependabot proposes updates monthly
+as pull requests, so a new SHA is reviewed by a person rather than picked up silently.
+
+Released archives ship with a SHA-256 sum, and `tools/verify-dist.sh` will re-check any archive —
+including one you downloaded — against the same ten checks the build itself must pass.
+
 ## Supported versions
 
 | Version | Supported |
