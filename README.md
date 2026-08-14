@@ -79,10 +79,13 @@ Stated here rather than discovered later:
 - **User identity is a locally-set PIN**, not certificate-based authentication. Real access
   control comes from the OS permissions on your shared folder.
 - **Timestamps come from the machine's clock**, not an accredited timestamping authority.
-- Therefore it **does not satisfy 국가연구개발사업 연구노트 지침 제7조 ①·②** (certificate-based
-  signature, accredited timestamp) and is **not 21 CFR Part 11-capable**. It is a research-integrity
-  and reproducibility tool, not a regulated-record system. See [SECURITY.md](SECURITY.md) for the
-  threat model.
+- **It therefore cannot meet any regime that requires a certificate-based electronic signature
+  or an accredited timestamp** — one technical fact that carries a different name in each
+  jurisdiction: **not 21 CFR Part 11-capable** (US FDA); **not a qualified signature or
+  timestamp under eIDAS**, and not compliant with **EU GMP Annex 11** (EU); not compliant with
+  the **ER/ES guideline** (Japan); and it does not satisfy **국가연구개발사업 연구노트 지침
+  제7조 ①·②** (Korea). It is a research-integrity and reproducibility tool, not a
+  regulated-record system. See [SECURITY.md](SECURITY.md) for the threat model.
 - The hash chain proves **internal consistency**. It is tamper-*evident*, not tamper-proof, until
   the chain head is anchored outside the control of whoever holds the records.
 
