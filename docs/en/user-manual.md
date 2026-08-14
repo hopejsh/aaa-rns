@@ -222,7 +222,7 @@ own name — you will see the gates and the cross-approval principle block them.
 ## 14. Re-running verification
 
 ```bash
-node simulation/run_simulation.mjs --cycle 9 --iters 150000
+node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 ```
 
 Runs are fully reproducible from the seed (same cycle number → same result). Reports are written to

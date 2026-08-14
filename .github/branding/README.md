@@ -11,9 +11,10 @@ this file is well under.
 
 ### Regenerating
 
-`social-preview.html` is the source. `shot.png` is the screen capture it crops (a copy of
-`docs/src/img/en/12-gates.png` — the verification-gate screen, chosen because it shows the one
-thing no other notebook does: the product refusing to seal).
+`social-preview.html` is the source. It crops `docs/src/img/en/12-gates.png` directly — the
+verification-gate screen, chosen because it shows the one thing no other notebook does: the
+product refusing to seal. It references that file rather than keeping a copy here, because a
+second copy is a second thing to keep in step.
 
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \

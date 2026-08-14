@@ -19,9 +19,10 @@ only what is needed to run the software, and you take the documents you actually
 | **Verification report**<br><sub>21 cycles · 2,446,015 simulation runs</sub> | [검증보고서](ko/verification-report.md) | [Verification report](en/verification-report.md) | [検証報告書](ja/verification-report.md) |
 | **Training deck**<br><sub>For introducing the system to a new team</sub> | [교육용 발표자료](ko/training-deck.pdf) | [Training deck](en/training-deck.pdf) | [研修用スライド](ja/training-deck.pdf) |
 
-The editable PowerPoint sources of the training decks live in [`src/decks/`](src/decks) and are
-also attached to every [release](../../releases/latest) for convenience. GitHub cannot preview a
-`.pptx` in any case — the PDFs above are the versions meant for reading in the browser.
+The editable PowerPoint sources of the decks are **[attached to the v2.0.0 release](../../releases/tag/v2.0.0)**
+rather than stored in the repository: GitHub cannot preview a `.pptx`, so keeping 16 MB of them in
+every clone buys nothing, and each re-export would add another full copy to the history for good.
+The PDFs above are the versions meant for reading in the browser.
 
 ## Screen captures are language-native
 
@@ -51,9 +52,10 @@ node docs/src/build_guides.mjs     # → docs/src/{en,ko,ja}/guide.html
 node docs/src/build_manuals.mjs    # → docs/{en,ko,ja}/user-manual.md
 ```
 
-Screen captures live in `src/img/{en,ko,ja}/`. Deck sources are in `src/decks/` and currently
-cannot be rebuilt — they reference an external design-system bundle that is not part of this
-repository.
+Screen captures live in `src/img/{en,ko,ja}/` and are the reason the guide PDFs can be rebuilt at
+all — do not remove them to save space. Deck `.pptx` sources come from the release assets; the
+`.dc.html` files they were originally designed from cannot be rebuilt, as they reference an
+external design-system bundle that is not part of this repository.
 
 ---
 

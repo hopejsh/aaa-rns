@@ -210,7 +210,7 @@ G3의 달성 표기 검사는 구조화된 필드뿐 아니라 **측정조건에
 ## 14. 검증 재실행
 
 ```bash
-node simulation/run_simulation.mjs --cycle 9 --iters 150000
+node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 ```
 
 시드 기반으로 완전히 재현됩니다(같은 사이클 번호 → 같은 결과). 보고서는

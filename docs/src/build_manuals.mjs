@@ -191,7 +191,7 @@ G3의 달성 표기 검사는 구조화된 필드뿐 아니라 **측정조건에
 테스트 팁: 일부러 \`[E#]\` 없는 문장을 넣거나 작성자 본인 이름으로 최종 승인을
 시도해 보십시오 — 게이트와 교차 승인 원칙이 차단하는 것을 직접 볼 수 있습니다.`,
     verify: `\`\`\`bash
-node simulation/run_simulation.mjs --cycle 9 --iters 150000
+node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 \`\`\`
 
 시드 기반으로 완전히 재현됩니다(같은 사이클 번호 → 같은 결과). 보고서는
@@ -389,7 +389,7 @@ the dashboard reminds you once a month (this can be switched off in Settings).
 Testing tip: deliberately add a sentence without \`[E#]\`, or try final approval under the author's
 own name — you will see the gates and the cross-approval principle block them.`,
     verify: `\`\`\`bash
-node simulation/run_simulation.mjs --cycle 9 --iters 150000
+node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 \`\`\`
 
 Runs are fully reproducible from the seed (same cycle number → same result). Reports are written to
@@ -576,7 +576,7 @@ G3 の達成表記の検査は、構造化された項目だけでなく、測�
 テストのコツ: わざと \`[E#]\` のない文を入れる、あるいは作成者本人の名前で最終承認を試みて
 ください — ゲートと相互承認の原則が遮断する様子を実際に確認できます。`,
     verify: `\`\`\`bash
-node simulation/run_simulation.mjs --cycle 9 --iters 150000
+node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 \`\`\`
 
 シードに基づき完全に再現されます（同じサイクル番号 → 同じ結果）。レポートは

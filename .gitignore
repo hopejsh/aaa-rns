@@ -38,6 +38,12 @@ tools/licenses/
 docs/src/*/guide.html
 docs/**/*.dc.html
 
+# ── 발표자료 편집 원본 ──
+#    GitHub 은 .pptx 를 미리보기하지 못하므로 저장소에 두어도 열람 가치가 0 이고,
+#    유지보수자만 쓰는 편집 원본이다. 무엇보다 다시 내보낼 때마다 16MB 가 이력에
+#    영구히 쌓인다. 릴리스 자산으로만 배포한다 (v2.0.0 에 첨부되어 있음).
+docs/src/decks/*.pptx
+
 # ── 편집기·백업·임시 ──
 .vscode/
 .idea/

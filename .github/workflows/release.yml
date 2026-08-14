@@ -28,7 +28,7 @@ jobs:
           files: |
             dist/*.zip
             dist/*.sha256
-            docs/src/decks/training-deck-en.pptx
-            docs/src/decks/training-deck-ko.pptx
-            docs/src/decks/training-deck-ja.pptx
           generate_release_notes: true
+      # 발표자료 편집 원본(.pptx)은 저장소가 추적하지 않으므로 여기서 첨부하지
+      # 않는다. 덱이 바뀌는 일은 드물고, 바뀌면 릴리스 화면에서 직접 올린다.
+      # v2.0.0 자산으로 이미 보존되어 있다.

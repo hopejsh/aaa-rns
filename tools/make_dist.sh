@@ -45,6 +45,7 @@ rsync -a \
   --exclude '/.gitignore' --exclude '/.gitattributes' \
   --exclude '/CONTRIBUTING.md' --exclude '/CODE_OF_CONDUCT.md' \
   --exclude '/SUPPORT.md' --exclude '/CITATION.cff' \
+  --exclude '/.zenodo.json' --exclude '/codemeta.json' \
   --exclude '.DS_Store' --exclude '._*' --exclude '*.lic' \
   --exclude 'license_keys*.json' --exclude 'node_modules' \
   ./ "$STAGE/"

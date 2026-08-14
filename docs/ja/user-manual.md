@@ -211,7 +211,7 @@ G3 の達成表記の検査は、構造化された項目だけでなく、測�
 ## 14. 検証の再実行
 
 ```bash
-node simulation/run_simulation.mjs --cycle 9 --iters 150000
+node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 ```
 
 シードに基づき完全に再現されます（同じサイクル番号 → 同じ結果）。レポートは
