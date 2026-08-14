@@ -15,15 +15,15 @@ authors:
   - given-names: Seung Ho
     family-names: Jung
     email: seung.jung@gmail.com
-version: 2.0.0
+version: 2.0.1
 date-released: "2026-08-14"
 license: Apache-2.0
 repository-code: "https://github.com/hopejsh/aaa-rns"
 url: "https://github.com/hopejsh/aaa-rns"
 # Zenodo issues two DOIs. The concept DOI always resolves to the newest
-# release and is what a reader normally wants; the version DOI is frozen to
-# v2.0.0 and is what you cite when the exact bytes matter — a reproducibility
-# statement, for instance.
+# release and is what a reader normally wants; the version DOI is frozen to a
+# single release and is what you cite when the exact bytes matter — a
+# reproducibility statement, for instance.
 doi: 10.5281/zenodo.21937754
 identifiers:
   - type: doi
@@ -31,7 +31,7 @@ identifiers:
     description: Concept DOI — always resolves to the latest release
   - type: doi
     value: 10.5281/zenodo.21937755
-    description: Version DOI — permanently fixed to v2.0.0
+    description: Version DOI — permanently fixed to v2.0.0 (the first release)
 keywords:
   - electronic lab notebook
   - research data management
