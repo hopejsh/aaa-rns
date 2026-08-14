@@ -89,8 +89,10 @@ Stated here rather than discovered later:
   jurisdiction: **not 21 CFR Part 11-capable** (US FDA); **not a qualified signature or
   timestamp under eIDAS**, and not compliant with **EU GMP Annex 11** (EU); not compliant with
   the **ER/ES guideline** (Japan); and it does not satisfy **국가연구개발사업 연구노트 지침
-  제7조 ①·②** (Korea). It is a research-integrity and reproducibility tool, not a
-  regulated-record system. See [SECURITY.md](SECURITY.md) for the threat model.
+  전자서명인증** as required by 국가연구개발사업 연구노트 지침 (Korea). It is a research-integrity
+  and reproducibility tool, not a regulated-record system. The clause-by-clause position, including
+  what is and is not verifiable, is in the [compliance matrix](https://hopejsh.github.io/aaa-rns/compliance.html);
+  the threat model is in [SECURITY.md](SECURITY.md).
 - The hash chain proves **internal consistency**. It is tamper-*evident*, not tamper-proof, until
   the chain head is anchored outside the control of whoever holds the records.
 
