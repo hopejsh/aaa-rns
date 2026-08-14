@@ -6,13 +6,28 @@
   "version": "2.0.0",
   "dateModified": "2026-08-14",
   "license": "https://spdx.org/licenses/Apache-2.0",
-  "programmingLanguage": ["JavaScript", "Python"],
-  "runtimePlatform": ["Web browser", "Python 3"],
-  "operatingSystem": ["macOS", "Windows", "Linux"],
+  "programmingLanguage": [
+    "JavaScript",
+    "Python"
+  ],
+  "runtimePlatform": [
+    "Web browser",
+    "Python 3"
+  ],
+  "operatingSystem": [
+    "macOS",
+    "Windows",
+    "Linux"
+  ],
   "applicationCategory": "Electronic Laboratory Notebook",
   "developmentStatus": "active",
   "author": [
-    { "@type": "Person", "givenName": "Seung Ho", "familyName": "Jung" }
+    {
+      "@type": "Person",
+      "givenName": "Seung Ho",
+      "familyName": "Jung",
+      "@id": "https://orcid.org/0000-0001-7914-5306"
+    }
   ],
   "keywords": [
     "electronic lab notebook",

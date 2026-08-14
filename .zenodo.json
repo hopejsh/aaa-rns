@@ -2,7 +2,10 @@
   "title": "AAA-RNS: AI Agent-driven Autonomous Research Notebook System",
   "description": "<p>An offline, server-free research notebook that builds a project-specific documentation system from a laboratory's own planning documents, drafts research notes from uploaded experiment logs and measurement data, links every generated sentence to an entry in an evidence ledger, and refuses to seal a note containing a claim the ledger does not support. Sealed notes are chained with a SHA-256 hash covering both content and signatures. Runs entirely in the browser with no external dependencies, in Korean, English and Japanese.</p>",
   "creators": [
-    { "name": "Jung, Seung Ho" }
+    {
+      "name": "Jung, Seung Ho",
+      "orcid": "0000-0001-7914-5306"
+    }
   ],
   "license": "Apache-2.0",
   "upload_type": "software",
