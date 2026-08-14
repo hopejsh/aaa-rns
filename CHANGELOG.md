@@ -43,6 +43,7 @@ First public release.
 - Sample document metadata carried the removed edition label in its `dc:creator` field.
 
 ### Known limitations
-- The three training decks under `docs/*/training-deck.pdf` were produced while the
-  project was MIT-licensed and their legal-notice slide still says so. The authoritative
-  license is [LICENSE](LICENSE); the decks will be regenerated at their next revision.
+- The training-deck **PDFs** under `docs/*/training-deck.pdf` still carry the old MIT
+  legal-notice slide. Their PowerPoint sources in `docs/src/decks/` are corrected; the
+  PDFs need one manual re-export from PowerPoint, which could not be automated here.
+  The authoritative license is always [LICENSE](LICENSE).

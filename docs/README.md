@@ -33,9 +33,17 @@ captions over Korean screens. What you see in the document is what you see on sc
 
 ## A note about the training decks
 
-The three decks were produced while this project was under the MIT license, and their
-legal-notice slide still says so. The authoritative license is [LICENSE](../LICENSE)
-(Apache-2.0); the decks will be corrected at their next revision.
+The decks were produced while this project was under the MIT license. **The PowerPoint
+sources in [`src/decks/`](src/decks) have been corrected** — slide 29 and its speaker notes
+now read Apache License 2.0 in all three languages. **The PDFs above have not yet been
+re-exported**, so their slide 29 still says MIT. The authoritative license is always
+[LICENSE](../LICENSE) (Apache-2.0).
+
+To finish: open each `src/decks/training-deck-<lang>.pptx` in PowerPoint and export to PDF
+over `<lang>/training-deck.pdf`. The design fonts (Barlow, Barlow Condensed, IBM Plex Sans KR,
+Noto Sans JP — all OFL) must be installed first, or the export substitutes them. Note that the
+current Korean and Japanese PDFs were *already* exported with substituted fonts (Malgun Gothic,
+MS Gothic), so a re-export with the proper fonts installed will look better than what ships today.
 
 ## Regenerating
 
