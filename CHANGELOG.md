@@ -42,8 +42,6 @@ First public release.
   expansion "…Research Notebook System" on the same screen.
 - Sample document metadata carried the removed edition label in its `dc:creator` field.
 
-### Known limitations
-- The training-deck **PDFs** under `docs/*/training-deck.pdf` still carry the old MIT
-  legal-notice slide. Their PowerPoint sources in `docs/src/decks/` are corrected; the
-  PDFs need one manual re-export from PowerPoint, which could not be automated here.
-  The authoritative license is always [LICENSE](LICENSE).
+- Training decks: the legal-notice slide said the program is distributed under the
+  MIT License. Corrected to Apache License 2.0 in the PowerPoint sources and in all
+  three exported PDFs.
