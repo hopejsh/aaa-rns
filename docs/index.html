@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AAA-RNS — a research notebook that refuses to seal an unsupported claim</title>
+<meta name="description" content="Offline research notebook. Drafts notes from your own lab logs, links every sentence to an evidence ID, and will not seal a claim the evidence does not support. No server, no cloud. Korean, English, Japanese.">
+<link rel="canonical" href="https://hopejsh.github.io/aaa-rns/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AAA-RNS — a research notebook that refuses to seal an unsupported claim">
+<meta property="og:description" content="Offline research notebook. No server, no cloud. Korean, English, Japanese.">
+<meta property="og:image" content="https://raw.githubusercontent.com/hopejsh/aaa-rns/main/.github/branding/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  /* ── 이 페이지는 의도적으로 의존성이 없다. 제품이 "외부 의존성 0"을
+       내세우는데 소개 페이지가 CDN 을 부르면 그 자체로 반증이 된다. ── */
+  :root{
+    --ink:#1d2d3d; --ink-2:#2a3f56; --paper:#ffffff; --wash:#f5f7fa;
+    --line:#dde3ea; --muted:#5b6b7d; --accent:#1d4e8f; --accent-soft:#e8f0fa;
+    --ok:#1f7a4d; --ok-soft:#e6f4ec; --warn:#8a5a12; --warn-soft:#fdf3e2;
+    --no:#9b2c2c; --no-soft:#fbeaea;
+    --sans:'Barlow',-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR','Noto Sans JP',sans-serif;
+    --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ink:#e8edf3; --ink-2:#c3cedb; --paper:#141c26; --wash:#1b2531;
+      --line:#2c3947; --muted:#93a2b4; --accent:#7aa9e8; --accent-soft:#1b2b41;
+      --ok:#6ed09b; --ok-soft:#16301f; --warn:#e0b366; --warn-soft:#302512;
+      --no:#e58b8b; --no-soft:#331a1a;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+       font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  a{color:var(--accent)}
+  h1,h2,h3{line-height:1.2;letter-spacing:-.01em}
+  /* 줄바꿈 규칙은 언어마다 다르다.
+     한국어: 어절 중간에서 끊기면 조사가 앞말과 떨어져 읽기 어려우므로 keep-all.
+     일본어: 원래 어디서든 끊어도 되는 문자 체계라 keep-all 을 걸면 오히려
+             줄이 들쭉날쭉해진다. 금칙 처리(line-break:strict)만 적용한다. */
+  html[data-lang="ko"] h1, html[data-lang="ko"] h2, html[data-lang="ko"] h3,
+  html[data-lang="ko"] .sub, html[data-lang="ko"] .lede, html[data-lang="ko"] .card p,
+  html[data-lang="ko"] .limits li, html[data-lang="ko"] td{
+    word-break:keep-all; overflow-wrap:break-word}
+  html[data-lang="ja"] h1, html[data-lang="ja"] h2, html[data-lang="ja"] h3,
+  html[data-lang="ja"] .sub, html[data-lang="ja"] .lede, html[data-lang="ja"] .card p,
+  html[data-lang="ja"] .limits li, html[data-lang="ja"] td{
+    line-break:strict}
+  h2{font-size:31px;margin:0 0 6px}
+  h3{font-size:20px;margin:0 0 8px}
+  section{padding:64px 0;border-top:1px solid var(--line)}
+  .lede{color:var(--muted);font-size:17px;margin-bottom:30px;max-width:66ch}
+
+  /* 언어 전환 */
+  .topbar{position:sticky;top:0;z-index:20;background:var(--paper);
+          border-bottom:1px solid var(--line)}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;
+                min-height:54px;gap:16px;flex-wrap:wrap}
+  .brand{font-weight:700;letter-spacing:.02em}
+  .brand span{color:var(--muted);font-weight:400}
+  .langs{display:flex;gap:4px}
+  .langs button{font:inherit;font-size:14px;padding:5px 12px;border-radius:999px;
+    border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+  .langs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);
+    color:#fff;font-weight:600}
+
+  /* 히어로 */
+  .hero{padding:66px 0 56px;background:
+        radial-gradient(900px 460px at 12% -20%, var(--accent-soft), transparent 65%)}
+  .hero h1{font-size:clamp(32px,5vw,54px);margin-bottom:18px;max-width:19ch}
+  html[data-lang="ko"] .hero h1, html[data-lang="ja"] .hero h1{max-width:none}
+  /* 절 경계에서의 의도적 개행은 넓은 화면에서만. 좁은 화면에서는 강제 개행이
+     오히려 "は" 한 글자만 남기는 식으로 고립을 만든다. */
+  @media (max-width:760px){ br.wide{display:none} }
+  .hero .sub{font-size:20px;color:var(--ink-2);max-width:60ch;margin-bottom:26px}
+  .cta{display:flex;gap:11px;flex-wrap:wrap;margin-bottom:16px}
+  .btn{display:inline-block;padding:11px 20px;border-radius:8px;font-weight:600;
+       text-decoration:none;font-size:16px;border:1px solid transparent}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-ghost{border-color:var(--line);color:var(--ink)}
+  .badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+  .badges img{height:20px}
+  .shot{margin-top:38px;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+        box-shadow:0 18px 44px rgba(0,0,0,.10)}
+  .shot img{display:block;width:100%;height:auto}
+  .shot figcaption{padding:11px 16px;background:var(--wash);color:var(--muted);
+                   font-size:14px;border-top:1px solid var(--line)}
+
+  .grid{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(258px,1fr))}
+  .card{border:1px solid var(--line);border-radius:11px;padding:22px;background:var(--wash)}
+  .card p{color:var(--muted);font-size:15.5px}
+
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-weight:600;background:var(--wash);white-space:nowrap}
+  td code,p code,li code{font-family:var(--mono);font-size:.9em;background:var(--wash);
+       padding:1px 5px;border-radius:4px}
+  .y{color:var(--ok);font-weight:600}
+  .n{color:var(--no);font-weight:600}
+  .p{color:var(--warn);font-weight:600}
+
+  .limits{background:var(--wash);border:1px solid var(--line);border-radius:11px;padding:24px}
+  .limits ul{margin:0;padding-left:20px}
+  .limits li{margin-bottom:9px;color:var(--ink-2)}
+  .limits li b{color:var(--ink)}
+
+  .docs td:first-child{font-weight:600;white-space:nowrap}
+  .pill{display:inline-block;font-size:12.5px;padding:2px 8px;border-radius:999px;
+        background:var(--accent-soft);color:var(--accent);margin-left:6px;font-weight:600}
+
+  pre{background:var(--wash);border:1px solid var(--line);border-radius:9px;
+      padding:15px 17px;overflow-x:auto;font-family:var(--mono);font-size:14px}
+  footer{padding:44px 0 62px;border-top:1px solid var(--line);color:var(--muted);font-size:14.5px}
+  footer a{color:var(--muted)}
+  [data-i18n]{display:none}
+  [data-i18n~="en"]{display:revert}
+  html[data-lang="ko"] [data-i18n]{display:none}
+  html[data-lang="ko"] [data-i18n~="ko"]{display:revert}
+  html[data-lang="ja"] [data-i18n]{display:none}
+  html[data-lang="ja"] [data-i18n~="ja"]{display:revert}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <div class="brand">AAA-RNS <span>· AI Agent-driven Autonomous Research Notebook System</span></div>
+  <div class="langs" role="group" aria-label="Language">
+    <button data-set="en" aria-pressed="true">English</button>
+    <button data-set="ko" aria-pressed="false">한국어</button>
+    <button data-set="ja" aria-pressed="false">日本語</button>
+  </div>
+</div></div>
+
+<header class="hero"><div class="wrap">
+  <h1 data-i18n="en">A research notebook that refuses to seal an unsupported claim.</h1>
+  <h1 data-i18n="ko">증거가 뒷받침하지 않는 주장은 <br class="wide">확정하지 않는 연구노트.</h1>
+  <h1 data-i18n="ja">証拠が裏付けない主張は<br class="wide">確定しない研究ノート。</h1>
+
+  <p class="sub" data-i18n="en">Upload your project documents and it builds a notebook system shaped around your project. Feed it lab logs and measurement files and it drafts each note from them — every sentence carrying the evidence ID it came from. No server, no cloud account, no Docker, no IT department.</p>
+  <p class="sub" data-i18n="ko">연구개발계획서를 올리면 그 과제에 맞는 연구노트 체계를 스스로 구성합니다. 실험일지와 측정 데이터를 넣으면 노트를 자동으로 집필하고, 모든 문장에 근거가 된 증거번호가 붙습니다. 서버도, 클라우드 계정도, Docker 도, 전산 담당자도 필요 없습니다.</p>
+  <p class="sub" data-i18n="ja">研究開発計画書をアップロードすると、その課題に合わせた研究ノート体系を自動で構成します。実験日誌と測定データを入れるとノートを自動執筆し、すべての文に根拠となった証拠番号が付きます。サーバーもクラウドアカウントも Docker も情報システム担当者も要りません。</p>
+
+  <div class="cta">
+    <a class="btn btn-primary" href="https://github.com/hopejsh/aaa-rns/releases/latest"><span data-i18n="en">Download v2.0.0</span><span data-i18n="ko">v2.0.0 내려받기</span><span data-i18n="ja">v2.0.0 をダウンロード</span></a>
+    <a class="btn btn-ghost" href="https://github.com/hopejsh/aaa-rns"><span data-i18n="en">Source on GitHub</span><span data-i18n="ko">GitHub 소스</span><span data-i18n="ja">GitHub のソース</span></a>
+    <a class="btn btn-ghost" href="#docs"><span data-i18n="en">Documentation</span><span data-i18n="ko">문서</span><span data-i18n="ja">ドキュメント</span></a>
+  </div>
+  <p style="color:var(--muted);font-size:15px" data-i18n="en">Unzip, double-click. Python 3 is the only prerequisite — macOS and most Linux systems already have it.</p>
+  <p style="color:var(--muted);font-size:15px" data-i18n="ko">압축을 풀고 더블클릭하면 끝입니다. 선행 조건은 Python 3 하나이며, macOS 와 대부분의 Linux 에는 이미 들어 있습니다.</p>
+  <p style="color:var(--muted);font-size:15px" data-i18n="ja">展開してダブルクリックするだけです。前提は Python 3 だけで、macOS と多くの Linux には既に入っています。</p>
+
+  <div class="badges">
+    <a href="https://doi.org/10.5281/zenodo.21937754"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.21937754.svg" alt="DOI 10.5281/zenodo.21937754"></a>
+    <img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="Apache-2.0">
+    <img src="https://img.shields.io/github/v/release/hopejsh/aaa-rns" alt="latest release">
+    <img src="https://img.shields.io/github/downloads/hopejsh/aaa-rns/total" alt="downloads">
+  </div>
+
+  <figure class="shot">
+    <img src="assets/hero-gates.png" alt="The verification gate panel showing G1 to G4 all passing, above the two-person sign and seal controls" loading="lazy">
+    <figcaption data-i18n="en">Four deterministic gates run before a note can be sealed. A note with outstanding findings does not get sealed — and nothing is thrown away: the text and the findings are both kept.</figcaption>
+    <figcaption data-i18n="ko">확정 전에 결정론 게이트 넷이 실행됩니다. 지적이 남은 노트는 확정되지 않으며, 아무것도 버리지 않습니다 — 본문과 지적사항이 함께 보존됩니다.</figcaption>
+    <figcaption data-i18n="ja">確定の前に決定論的なゲートが 4 つ実行されます。指摘が残っているノートは確定されず、何も破棄しません — 本文と指摘の双方が保存されます。</figcaption>
+  </figure>
+</div></header>
+
+<section><div class="wrap">
+  <h2 data-i18n="en">What makes it different</h2>
+  <h2 data-i18n="ko">무엇이 다른가</h2>
+  <h2 data-i18n="ja">何が違うのか</h2>
+  <p class="lede" data-i18n="en">Three of these are mechanisms, not features. They are why the record can be trusted.</p>
+  <p class="lede" data-i18n="ko">아래 셋은 기능이 아니라 메커니즘입니다. 기록을 신뢰할 수 있는 이유가 여기에 있습니다.</p>
+  <p class="lede" data-i18n="ja">以下の 3 つは機能ではなく仕組みです。記録を信頼できる理由がここにあります。</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3 data-i18n="en">It drafts from your evidence</h3>
+      <h3 data-i18n="ko">증거에서 집필합니다</h3>
+      <h3 data-i18n="ja">証拠から執筆します</h3>
+      <p data-i18n="en">Drop in an experiment log or a measurement CSV. The file is attached with its SHA-256 hash, evidence is registered as <code>[E#]</code>, and the work-performed, result-data and interpretation sections are written from that evidence alone. Sentences come only from the uploaded originals — the system does not compose facts.</p>
+      <p data-i18n="ko">실험일지나 측정 CSV 를 끌어다 놓으면 파일이 SHA-256 해시와 함께 첨부되고, 증거가 <code>[E#]</code> 로 등재되며, 수행 내용·결과 데이터·해석이 그 증거만으로 작성됩니다. 문장은 업로드한 원문에서만 나오며 시스템이 사실을 지어내지 않습니다.</p>
+      <p data-i18n="ja">実験日誌や測定 CSV をドラッグすると、ファイルが SHA-256 ハッシュとともに添付され、証拠が <code>[E#]</code> として登録され、実施内容・結果データ・解釈がその証拠だけで作成されます。文はアップロードした原文からのみ生成され、システムが事実を作り出すことはありません。</p>
+    </div>
+    <div class="card">
+      <h3 data-i18n="en">It refuses, and it records the refusal</h3>
+      <h3 data-i18n="ko">거부하고, 그 거부를 기록합니다</h3>
+      <h3 data-i18n="ja">拒否し、その拒否を記録します</h3>
+      <p data-i18n="en">A sentence with no evidence ID, a figure that contradicts a sealed note, a sum that does not add up, an "achieved" written against a value that missed its target — each blocks sealing. The text is never discarded, so a refusal leaves a record rather than a hole.</p>
+      <p data-i18n="ko">증거번호 없는 문장, 확정 노트와 모순되는 수치, 맞지 않는 합계, 목표에 못 미친 값에 붙은 "달성" 표기 — 각각이 확정을 막습니다. 본문은 절대 버려지지 않으므로, 거부는 구멍이 아니라 기록을 남깁니다.</p>
+      <p data-i18n="ja">証拠番号のない文、確定ノートと矛盾する数値、合わない合計、目標に届かない値に付いた「達成」表記 — それぞれが確定を止めます。本文は決して破棄されないため、拒否は穴ではなく記録を残します。</p>
+    </div>
+    <div class="card">
+      <h3 data-i18n="en">Sealed means sealed</h3>
+      <h3 data-i18n="ko">확정은 확정입니다</h3>
+      <h3 data-i18n="ja">確定は確定です</h3>
+      <p data-i18n="en">On sealing, the note's hash covers the content <em>and the signatures</em> together and chains to the previous sealed note. Editing the text afterwards — or substituting an approver's name — is exposed by the chain check. Changes are made only by issuing a revision; the original remains.</p>
+      <p data-i18n="ko">확정 시 노트 해시가 <em>본문과 서명을 함께</em> 덮어 직전 확정 노트와 사슬로 연결됩니다. 사후에 본문을 고치는 것은 물론 승인자 이름을 바꿔치기해도 체인 검증에서 드러납니다. 변경은 개정판 발행으로만 가능하며 원본은 남습니다.</p>
+      <p data-i18n="ja">確定時、ノートのハッシュは<em>本文と署名の両方</em>を覆い、直前の確定ノートと鎖状に連結されます。事後に本文を直すことはもちろん、承認者名をすり替えてもチェーン検証で明らかになります。変更は改訂版の発行でのみ可能で、原本は残ります。</p>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2 data-i18n="en">Honest limits</h2>
+  <h2 data-i18n="ko">정직한 한계</h2>
+  <h2 data-i18n="ja">率直な限界</h2>
+  <p class="lede" data-i18n="en">Stated here rather than discovered later. If any of these is a requirement for you, this is not your tool.</p>
+  <p class="lede" data-i18n="ko">나중에 발견하기보다 먼저 밝힙니다. 아래 중 하나라도 필수 요건이라면 이 제품은 맞지 않습니다.</p>
+  <p class="lede" data-i18n="ja">後から気づくより先に記します。以下のいずれかが必須要件であれば、本製品は適していません。</p>
+
+  <div class="limits">
+    <ul data-i18n="en">
+      <li><b>This is not a LIMS.</b> No sample or inventory management, no instrument integrations, no real-time co-editing, no mobile app.</li>
+      <li><b>User identity is a locally-set PIN</b>, not certificate-based authentication. Real access control comes from the operating system's permissions on your shared folder.</li>
+      <li><b>Timestamps come from the machine's clock</b>, not an accredited timestamping authority.</li>
+      <li><b>It therefore cannot meet any regime that requires a certificate-based signature or an accredited timestamp</b> — one technical fact with a different name in each jurisdiction: 21 CFR Part 11 (US), eIDAS qualified signatures and EU GMP Annex 11 (EU), the ER/ES guideline (Japan), 연구노트 지침 제7조 ①·② (Korea).</li>
+      <li><b>The hash chain proves internal consistency.</b> It is tamper-<em>evident</em>, not tamper-proof, until the chain head is anchored outside the control of whoever holds the records.</li>
+    </ul>
+    <ul data-i18n="ko">
+      <li><b>LIMS 가 아닙니다.</b> 시료·재고 관리, 장비 연동, 실시간 공동편집, 모바일 앱이 없습니다.</li>
+      <li><b>사용자 신원은 로컬 PIN</b> 이며 인증서 기반 인증이 아닙니다. 실제 접근 통제는 공유폴더의 OS 권한으로 수행하십시오.</li>
+      <li><b>시각은 기기 시계</b>이며 공인 시점인증 기관의 것이 아닙니다.</li>
+      <li><b>따라서 인증서 기반 서명이나 공인 시점인증을 요구하는 어떤 제도도 충족할 수 없습니다</b> — 하나의 기술적 사실이 나라마다 다른 이름으로 불릴 뿐입니다: 연구노트 지침 제7조 ①·②(한국), 21 CFR Part 11(미국), eIDAS 적격 서명과 EU GMP Annex 11(EU), ER/ES 지침(일본).</li>
+      <li><b>해시 체인은 내부 정합성을 증명합니다.</b> 체인의 머리가 기록 보유자의 통제 밖에 고정되기 전까지는 변조 <em>탐지</em>이지 변조 불가가 아닙니다.</li>
+    </ul>
+    <ul data-i18n="ja">
+      <li><b>LIMS ではありません。</b> 試料・在庫管理、装置連携、リアルタイム共同編集、モバイルアプリはありません。</li>
+      <li><b>利用者の識別はローカルの PIN</b> であり、証明書ベースの認証ではありません。実際のアクセス統制は共有フォルダの OS 権限で行ってください。</li>
+      <li><b>時刻は端末の時計</b>であり、認定タイムスタンプ局のものではありません。</li>
+      <li><b>したがって、証明書ベースの署名や認定タイムスタンプを要求するいかなる制度も満たせません</b> — 一つの技術的事実が国ごとに別の名前で呼ばれているだけです: ER/ES 指針（日本）、21 CFR Part 11（米国）、eIDAS の適格署名と EU GMP Annex 11（EU）、研究ノート指針 第7条 ①・②（韓国）。</li>
+      <li><b>ハッシュチェーンが証明するのは内部整合性です。</b> チェーンの先端が記録保有者の管理外に固定されるまでは、改ざん<em>検出可能</em>であって改ざん不可能ではありません。</li>
+    </ul>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2 data-i18n="en">Where it fits</h2>
+  <h2 data-i18n="ko">어디에 맞는가</h2>
+  <h2 data-i18n="ja">どこに合うのか</h2>
+  <p class="lede" data-i18n="en">The honest competitive set is eLabFTW and RSpace, not Benchling. The wedge is not features — it is that nothing has to be run.</p>
+  <p class="lede" data-i18n="ko">정직한 경쟁 상대는 Benchling 이 아니라 eLabFTW·RSpace 입니다. 쐐기는 기능이 아니라 "운영할 것이 없다"는 점입니다.</p>
+  <p class="lede" data-i18n="ja">率直な競合は Benchling ではなく eLabFTW・RSpace です。楔は機能ではなく「運用するものが何もない」ことです。</p>
+
+  <div class="scroll"><table>
+    <thead><tr>
+      <th></th><th>AAA-RNS</th><th>eLabFTW</th><th>RSpace</th><th>Benchling</th>
+    </tr></thead>
+    <tbody>
+      <tr><td data-i18n="en">Runs fully offline</td><td data-i18n="ko">완전 오프라인 동작</td><td data-i18n="ja">完全オフライン動作</td>
+          <td class="y">✅</td><td class="p">LAN only</td><td class="p">LAN only</td><td class="n">❌ cloud</td></tr>
+      <tr><td data-i18n="en">Server / admin required</td><td data-i18n="ko">서버·관리자 필요</td><td data-i18n="ja">サーバー・管理者が必要</td>
+          <td class="y">none</td><td class="n">Docker + DB</td><td class="n">container stack</td><td class="n">vendor's</td></tr>
+      <tr><td data-i18n="en">Refuses to seal unsupported claims</td><td data-i18n="ko">근거 없는 주장 확정 거부</td><td data-i18n="ja">根拠のない主張の確定を拒否</td>
+          <td class="y">✅</td><td class="n">❌</td><td class="n">❌</td><td class="n">❌</td></tr>
+      <tr><td data-i18n="en">Drafts from your own documents</td><td data-i18n="ko">자사 문서에서 자동 집필</td><td data-i18n="ja">自社文書から自動執筆</td>
+          <td class="y">✅</td><td class="n">❌</td><td class="n">❌</td><td class="p">templates</td></tr>
+      <tr><td data-i18n="en">KO / EN / JA at parity</td><td data-i18n="ko">한·영·일 동등 지원</td><td data-i18n="ja">韓・英・日を同等に対応</td>
+          <td class="y">✅</td><td class="p">unverified</td><td class="n">EN</td><td class="n">EN only</td></tr>
+      <tr><td data-i18n="en">Tamper evidence</td><td data-i18n="ko">변조 탐지</td><td data-i18n="ja">改ざん検出</td>
+          <td class="p">local chain only</td><td class="y">eIDAS timestamp</td><td class="y">audit + signing</td><td class="y">Part 11 trail</td></tr>
+      <tr><td data-i18n="en">Authentication strength</td><td data-i18n="ko">인증 강도</td><td data-i18n="ja">認証の強度</td>
+          <td class="n">local PIN</td><td class="y">MFA</td><td class="y">institutional</td><td class="y">SSO</td></tr>
+      <tr><td data-i18n="en">Inventory / instruments</td><td data-i18n="ko">재고·장비 연동</td><td data-i18n="ja">在庫・装置連携</td>
+          <td class="n">none</td><td class="p">some</td><td class="y">20+</td><td class="y">strong</td></tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:14px;color:var(--muted);font-size:14.5px" data-i18n="en">The last three rows are where we lose, and they are published on purpose. eLabFTW's eIDAS timestamping is genuinely stronger than a local hash chain today.</p>
+  <p style="margin-top:14px;color:var(--muted);font-size:14.5px" data-i18n="ko">마지막 세 줄은 이 제품이 지는 항목이며, 일부러 공개합니다. eLabFTW 의 eIDAS 시점인증은 오늘 기준 로컬 해시 체인보다 실제로 강합니다.</p>
+  <p style="margin-top:14px;color:var(--muted);font-size:14.5px" data-i18n="ja">最後の 3 行は本製品が劣る項目であり、意図して公開しています。eLabFTW の eIDAS タイムスタンプは現時点でローカルのハッシュチェーンより実際に強力です。</p>
+</div></section>
+
+<section id="docs"><div class="wrap">
+  <h2 data-i18n="en">Documentation</h2>
+  <h2 data-i18n="ko">문서</h2>
+  <h2 data-i18n="ja">ドキュメント</h2>
+  <p class="lede" data-i18n="en">Every guide's screenshots were taken in that language's own interface — not translated captions over Korean screens.</p>
+  <p class="lede" data-i18n="ko">각 가이드의 화면 캡처는 해당 언어 화면에서 직접 촬영했습니다 — 한국어 화면에 번역 설명만 얹은 것이 아닙니다.</p>
+  <p class="lede" data-i18n="ja">各ガイドのスクリーンショットはその言語の画面から直接撮影しています — 韓国語の画面に訳文を載せたものではありません。</p>
+
+  <div class="scroll"><table class="docs">
+    <thead><tr><th></th><th>한국어</th><th>English</th><th>日本語</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span data-i18n="en">Installation &amp; user guide</span><span data-i18n="ko">설치·사용 가이드</span><span data-i18n="ja">インストール・利用ガイド</span><span class="pill">PDF</span></td>
+        <td><a href="ko/installation-guide.pdf">24 p</a></td><td><a href="en/installation-guide.pdf">26 p</a></td><td><a href="ja/installation-guide.pdf">26 p</a></td>
+      </tr>
+      <tr>
+        <td><span data-i18n="en">User manual</span><span data-i18n="ko">사용설명서</span><span data-i18n="ja">利用マニュアル</span></td>
+        <td><a href="https://github.com/hopejsh/aaa-rns/blob/main/docs/ko/user-manual.md">보기</a></td>
+        <td><a href="https://github.com/hopejsh/aaa-rns/blob/main/docs/en/user-manual.md">read</a></td>
+        <td><a href="https://github.com/hopejsh/aaa-rns/blob/main/docs/ja/user-manual.md">閲覧</a></td>
+      </tr>
+      <tr>
+        <td><span data-i18n="en">Verification report</span><span data-i18n="ko">검증보고서</span><span data-i18n="ja">検証報告書</span></td>
+        <td><a href="https://github.com/hopejsh/aaa-rns/blob/main/docs/ko/verification-report.md">보기</a></td>
+        <td><a href="https://github.com/hopejsh/aaa-rns/blob/main/docs/en/verification-report.md">read</a></td>
+        <td><a href="https://github.com/hopejsh/aaa-rns/blob/main/docs/ja/verification-report.md">閲覧</a></td>
+      </tr>
+      <tr>
+        <td><span data-i18n="en">Training deck</span><span data-i18n="ko">교육용 발표자료</span><span data-i18n="ja">研修用スライド</span><span class="pill">PDF</span></td>
+        <td><a href="ko/training-deck.pdf">30 p</a></td><td><a href="en/training-deck.pdf">30 p</a></td><td><a href="ja/training-deck.pdf">30 p</a></td>
+      </tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2 data-i18n="en">Verification</h2>
+  <h2 data-i18n="ko">검증</h2>
+  <h2 data-i18n="ja">検証</h2>
+  <p class="lede" data-i18n="en">Two campaigns, 21 cycles, 2,446,015 simulation runs — deliberately injecting missing citations, contradictory figures, tampered signatures, corrupted backups and forged licenses, then asserting the product blocks them. Five genuine defects were found and fixed; three findings turned out to be defects in the test code and were retracted rather than counted.</p>
+  <p class="lede" data-i18n="ko">두 차례 캠페인, 21 사이클, 총 2,446,015회 시뮬레이션 — 인용 누락·모순 수치·서명 변조·손상된 백업·위조 라이선스를 일부러 주입하고 제품이 이를 차단하는지 검사했습니다. 제품 실결함 5건을 찾아 수정했고, 3건은 시험 코드 자체의 결함으로 밝혀져 실적으로 세지 않고 철회했습니다.</p>
+  <p class="lede" data-i18n="ja">2 回のキャンペーン、21 サイクル、計 2,446,015 回のシミュレーション — 引用の欠落・矛盾する数値・改ざんされた署名・破損したバックアップ・偽造ライセンスを意図的に注入し、製品がそれらを遮断することを検査しました。製品の実欠陥 5 件を発見・修正し、3 件はテストコード自体の欠陥と判明したため実績に数えず撤回しました。</p>
+  <pre>node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000</pre>
+  <p style="margin-top:12px;font-size:15px;color:var(--muted)" data-i18n="en">Runs are reproducible from the seed. The reports directory carries <a href="https://github.com/hopejsh/aaa-rns/blob/main/simulation/reports/README.md">an honest note</a> about nine campaign-1 reports lost to an overwrite, which are <em>not</em> reconstructed.</p>
+  <p style="margin-top:12px;font-size:15px;color:var(--muted)" data-i18n="ko">시드 기반이라 재현됩니다. 보고서 폴더에는 덮어쓰기로 소실된 캠페인 1의 9개 보고서를 복원하지 않고 그대로 밝힌 <a href="https://github.com/hopejsh/aaa-rns/blob/main/simulation/reports/README.md">기록</a>이 함께 들어 있습니다.</p>
+  <p style="margin-top:12px;font-size:15px;color:var(--muted)" data-i18n="ja">シードに基づき再現可能です。レポートのフォルダには、上書きで失われたキャンペーン 1 の 9 件を復元せずそのまま記した<a href="https://github.com/hopejsh/aaa-rns/blob/main/simulation/reports/README.md">記録</a>が同梱されています。</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2 data-i18n="en">Citing this software</h2>
+  <h2 data-i18n="ko">인용</h2>
+  <h2 data-i18n="ja">引用</h2>
+  <p class="lede" data-i18n="en">Cite the concept DOI normally; it always resolves to the newest release. Cite the version DOI when the exact bytes matter — a reproducibility statement, for instance.</p>
+  <p class="lede" data-i18n="ko">보통은 개념 DOI 를 인용하십시오 — 항상 최신 릴리스로 연결됩니다. 재현성 진술처럼 정확한 바이트가 문제가 될 때는 버전 DOI 를 인용합니다.</p>
+  <p class="lede" data-i18n="ja">通常はコンセプト DOI を引用してください — 常に最新のリリースへ解決されます。再現性の記述のように正確なバイトが問題になる場合はバージョン DOI を引用します。</p>
+  <pre>Jung, S. H. (2026). AAA-RNS: AI Agent-driven Autonomous Research Notebook System
+(Version 2.0.0) [Computer software]. https://doi.org/10.5281/zenodo.21937754</pre>
+</div></section>
+
+<footer><div class="wrap">
+  <p>AAA-RNS v2.0.0 · Developed by <b>Seung Ho Jung</b> · Apache-2.0 © 2026</p>
+  <p style="margin-top:6px">
+    <a href="https://github.com/hopejsh/aaa-rns">GitHub</a> ·
+    <a href="https://doi.org/10.5281/zenodo.21937754">DOI</a> ·
+    <a href="https://github.com/hopejsh/aaa-rns/blob/main/SECURITY.md">Security</a> ·
+    <a href="https://github.com/hopejsh/aaa-rns/discussions">Discussions</a>
+  </p>
+</div></footer>
+
+<script>
+/* 언어 전환 — 서버도 빌드도 없이, 저장된 선택과 브라우저 언어를 따른다.
+   제품 자체가 같은 원칙(감지 후 즉시 변경 가능)을 쓰므로 소개 페이지도 맞춘다. */
+(function () {
+  var LANGS = ['en', 'ko', 'ja'];
+  function detect() {
+    var saved = null;
+    try { saved = localStorage.getItem('aaarns_site_lang'); } catch (e) {}
+    if (LANGS.indexOf(saved) >= 0) return saved;
+    var cands = navigator.languages || [navigator.language || ''];
+    for (var i = 0; i < cands.length; i++) {
+      var t = String(cands[i]).toLowerCase();
+      if (t.indexOf('ko') === 0) return 'ko';
+      if (t.indexOf('ja') === 0) return 'ja';
+      if (t.indexOf('en') === 0) return 'en';
+    }
+    return 'en';
+  }
+  function apply(lang) {
+    document.documentElement.setAttribute('data-lang', lang);
+    document.documentElement.setAttribute('lang', lang);
+    var btns = document.querySelectorAll('.langs button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.set === lang));
+    }
+    try { localStorage.setItem('aaarns_site_lang', lang); } catch (e) {}
+  }
+  document.querySelector('.langs').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (b) apply(b.dataset.set);
+  });
+  apply(detect());
+})();
+</script>
+</body>
+</html>
