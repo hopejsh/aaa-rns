@@ -2,6 +2,11 @@
 
 # AAA-RNS — AI 에이전트 연구노트 자동화 시스템
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21937754.svg)](https://doi.org/10.5281/zenodo.21937754)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/hopejsh/aaa-rns)](https://github.com/hopejsh/aaa-rns/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/hopejsh/aaa-rns/total)](https://github.com/hopejsh/aaa-rns/releases)
+
 **서버도, 클라우드 계정도, Docker 도, 전산 담당자도 필요 없는 연구노트 시스템.**
 
 압축을 풀고 더블클릭하면 실행됩니다 — 랜선을 뽑은 노트북에서도 그대로 동작합니다.
@@ -135,6 +140,32 @@ node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 
 이슈와 PR 을 환영합니다 — [CONTRIBUTING.md](CONTRIBUTING.md). 규칙은 둘입니다. 문서
 변경은 저장소가 증거를 댈 수 없는 주장을 새로 넣을 수 없고, 3개 README 는 함께 움직입니다.
+
+## 인용
+
+이 소프트웨어가 발표하신 연구에 기여했다면 인용해 주십시오. 저장소에
+[`CITATION.cff`](CITATION.cff) 가 있어 GitHub 사이드바의 **"Cite this repository"** 버튼이
+APA·BibTeX 형식을 자동으로 만들어 줍니다.
+
+> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.0)
+> [Computer software]. https://doi.org/10.5281/zenodo.21937754
+
+```bibtex
+@software{jung_aaarns_2026,
+  author    = {Jung, Seung Ho},
+  title     = {{AAA-RNS: AI Agent-driven Autonomous Research Notebook System}},
+  version   = {2.0.0},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.21937754},
+  url       = {https://github.com/hopejsh/aaa-rns}
+}
+```
+
+Zenodo 는 DOI 를 두 개 발급합니다. **`10.5281/zenodo.21937754`** 는 *개념* DOI 로 항상 최신
+릴리스로 연결됩니다 — 보통은 이쪽을 인용하십시오. **`10.5281/zenodo.21937755`** 는 *버전* DOI
+로 v2.0.0 에 고정되어 있으며, 재현성 진술이나 특정 분석을 기술하는 방법 절처럼 **정확한 바이트가
+문제가 될 때** 이쪽을 인용합니다.
 
 ## 라이선스
 

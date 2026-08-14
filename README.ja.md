@@ -2,6 +2,11 @@
 
 # AAA-RNS — AI エージェント研究ノート自動化システム
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21937754.svg)](https://doi.org/10.5281/zenodo.21937754)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/hopejsh/aaa-rns)](https://github.com/hopejsh/aaa-rns/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/hopejsh/aaa-rns/total)](https://github.com/hopejsh/aaa-rns/releases)
+
 **サーバーもクラウドアカウントも Docker も情報システム担当者も要らない研究ノートシステム。**
 
 展開してダブルクリックすれば動きます — LAN ケーブルを抜いたノート PC でもそのままです。
@@ -137,6 +142,32 @@ node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 Issue と Pull Request を歓迎します — [CONTRIBUTING.md](CONTRIBUTING.md)。ルールは 2 つです。
 文書の変更はリポジトリが証拠を示せない主張を新たに持ち込めないこと、そして 3 つの README は
 必ず一緒に動かすことです。
+
+## 引用
+
+本ソフトウェアが公表される研究に寄与した場合は、引用をお願いします。リポジトリに
+[`CITATION.cff`](CITATION.cff) があるため、GitHub サイドバーの **「Cite this repository」**
+ボタンが APA・BibTeX 形式を自動生成します。
+
+> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.0)
+> [Computer software]. https://doi.org/10.5281/zenodo.21937754
+
+```bibtex
+@software{jung_aaarns_2026,
+  author    = {Jung, Seung Ho},
+  title     = {{AAA-RNS: AI Agent-driven Autonomous Research Notebook System}},
+  version   = {2.0.0},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.21937754},
+  url       = {https://github.com/hopejsh/aaa-rns}
+}
+```
+
+Zenodo は DOI を 2 つ発行します。**`10.5281/zenodo.21937754`** は*コンセプト* DOI で、常に最新の
+リリースへ解決されます — 通常はこちらを引用してください。**`10.5281/zenodo.21937755`** は
+*バージョン* DOI で v2.0.0 に固定されており、再現性の記述や特定の解析を述べる方法の節など、
+**正確なバイトが問題になる場合**にこちらを引用します。
 
 ## ライセンス
 

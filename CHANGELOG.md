@@ -8,6 +8,9 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 First public release.
 
 ### Added
+- Archived on Zenodo with a DOI: `10.5281/zenodo.21937754` (concept, always latest) and
+  `10.5281/zenodo.21937755` (this release). `CITATION.cff` carries both, so GitHub's
+  "Cite this repository" button produces APA and BibTeX.
 - **Community edition** (`js/core/edition.js`): the published build needs no registration
   key and places no limit on the number of projects. The signed-key path and the
   one-project binding remain, behind a single constant, for builds issued to a named

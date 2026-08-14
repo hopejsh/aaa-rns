@@ -2,6 +2,11 @@
 
 # AAA-RNS — AI Agent-driven Autonomous Research Notebook System
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21937754.svg)](https://doi.org/10.5281/zenodo.21937754)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/hopejsh/aaa-rns)](https://github.com/hopejsh/aaa-rns/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/hopejsh/aaa-rns/total)](https://github.com/hopejsh/aaa-rns/releases)
+
 **A research notebook for the labs the ELN market cannot reach: no server, no cloud account, no Docker, no IT department.**
 
 Unzip a folder, double-click, and it runs — on a laptop with the network cable pulled.
@@ -139,6 +144,32 @@ nothing unless every file passes verification.
 Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Two house rules:
 documentation changes may not introduce a claim the repository cannot evidence, and the three
 READMEs move together.
+
+## Citing this software
+
+If this software contributed to work you publish, please cite it. The repository carries a
+[`CITATION.cff`](CITATION.cff), so GitHub's **"Cite this repository"** button on the sidebar
+produces APA and BibTeX for you.
+
+> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.0)
+> [Computer software]. https://doi.org/10.5281/zenodo.21937754
+
+```bibtex
+@software{jung_aaarns_2026,
+  author    = {Jung, Seung Ho},
+  title     = {{AAA-RNS: AI Agent-driven Autonomous Research Notebook System}},
+  version   = {2.0.0},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.21937754},
+  url       = {https://github.com/hopejsh/aaa-rns}
+}
+```
+
+Zenodo issues two DOIs. **`10.5281/zenodo.21937754`** is the *concept* DOI and always resolves to
+the newest release — cite this one normally. **`10.5281/zenodo.21937755`** is the *version* DOI,
+frozen to v2.0.0; cite it instead when the exact bytes matter, such as in a reproducibility
+statement or a methods section describing a specific analysis.
 
 ## License
 
