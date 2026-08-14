@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Syntax-check every module
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            node --check "$f" || { echo "SYNTAX FAIL: $f"; fail=1; }
+          done < <(find js simulation docs/src -name '*.js' -o -name '*.mjs' 2>/dev/null)
+          exit $fail
+
+      - name: Every import must resolve
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            grep -oE "from '[^']+'" "$f" | sed "s/from '//;s/'//" | while read -r imp; do
+              case "$imp" in
+                ./*|../*)
+                  target="$(dirname "$f")/$imp"
+                  [ -f "$target" ] || { echo "MISSING IMPORT: $f -> $imp"; exit 1; } ;;
+              esac
+            done || fail=1
+          done < <(find js -name '*.js')
+          exit $fail
+
+      - name: No secrets, no developer paths
+        run: |
+          if grep -rIn -E '(BEGIN [A-Z ]*PRIVATE KEY|sk-ant-[A-Za-z0-9]{20}|sk-[A-Za-z0-9]{32}|AIza[A-Za-z0-9_-]{30}|ghp_[A-Za-z0-9]{30}|AKIA[A-Z0-9]{16}|/Users/[a-z]+/Documents)' \
+               --exclude-dir=.git --exclude-dir=docs . ; then
+            echo "FATAL: secret or developer-specific path found"; exit 1
+          fi
+
+      - name: Forbidden branding, including inside OOXML
+        run: |
+          fail=0
+          # 검사기 자신(.github, tools)은 대상에서 뺀다 — 규칙을 적은 파일이
+          # 규칙 위반으로 잡히면 검사는 영원히 실패한다.
+          grep -rIn 'AAA-RNS General' --exclude-dir=.git --exclude-dir=.github --exclude-dir=tools . && fail=1
+          for f in $(find sample_docs -name '*.docx' -o -name '*.xlsx'); do
+            if unzip -p "$f" '*' 2>/dev/null | grep -aq 'AAA-RNS General'; then
+              echo "FATAL: forbidden branding inside $f"; fail=1
+            fi
+          done
+          exit $fail
+
+      - name: Version is single-sourced
+        run: |
+          v=$(cat VERSION)
+          grep -q "APP_VERSION = '$v'" js/core/version.js || {
+            echo "FATAL: VERSION ($v) disagrees with js/core/version.js"; exit 1; }
+
+      - name: All three READMEs present and in step
+        run: |
+          for f in README.md README.ko.md README.ja.md; do
+            [ -f "$f" ] || { echo "MISSING $f"; exit 1; }
+            # The selector names all three languages; the current one is bold,
+            # the other two are links — so test for the language names, not for
+            # the filenames (a file never links to itself).
+            head -3 "$f" | grep -q 'English' && \
+            head -3 "$f" | grep -q '한국어' && \
+            head -3 "$f" | grep -q '日本語' || {
+              echo "FATAL: $f is missing the three-language selector row"; exit 1; }
+          done
+          # Section counts must match, or one translation has silently drifted.
+          a=$(grep -c '^## ' README.md); b=$(grep -c '^## ' README.ko.md); c=$(grep -c '^## ' README.ja.md)
+          [ "$a" = "$b" ] && [ "$a" = "$c" ] || {
+            echo "FATAL: section counts differ — en=$a ko=$b ja=$c"; exit 1; }

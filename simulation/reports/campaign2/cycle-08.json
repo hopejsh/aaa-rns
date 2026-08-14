@@ -1,0 +1,189 @@
+{
+  "product": "AAA-RNS 2.0",
+  "cycle": 8,
+  "max_cycles": 12,
+  "executed_at": "2026-08-14T01:39:04.085Z",
+  "iterations": 149999,
+  "min_required": 100000,
+  "duration_ms": 44116,
+  "failures_total": 0,
+  "distinct_defects": 0,
+  "verdict": "PASS",
+  "categories": [
+    {
+      "name": "util_dates",
+      "iters": 8090,
+      "failures": 0,
+      "ms": 90
+    },
+    {
+      "name": "util_numbers",
+      "iters": 5393,
+      "failures": 0,
+      "ms": 51
+    },
+    {
+      "name": "csv_roundtrip",
+      "iters": 3371,
+      "failures": 0,
+      "ms": 10
+    },
+    {
+      "name": "docx_roundtrip",
+      "iters": 2022,
+      "failures": 0,
+      "ms": 128
+    },
+    {
+      "name": "xlsx_roundtrip",
+      "iters": 2022,
+      "failures": 0,
+      "ms": 101
+    },
+    {
+      "name": "parser_fuzz",
+      "iters": 5393,
+      "failures": 0,
+      "ms": 149
+    },
+    {
+      "name": "analyzer_truth",
+      "iters": 6742,
+      "failures": 0,
+      "ms": 491
+    },
+    {
+      "name": "analyzer_adversarial",
+      "iters": 5393,
+      "failures": 0,
+      "ms": 236
+    },
+    {
+      "name": "generator_invariants",
+      "iters": 16854,
+      "failures": 0,
+      "ms": 11238
+    },
+    {
+      "name": "gates_planted",
+      "iters": 10112,
+      "failures": 0,
+      "ms": 344
+    },
+    {
+      "name": "notes_lifecycle",
+      "iters": 5393,
+      "failures": 0,
+      "ms": 1147
+    },
+    {
+      "name": "ledger_citations",
+      "iters": 2022,
+      "failures": 0,
+      "ms": 20
+    },
+    {
+      "name": "format_edges",
+      "iters": 2022,
+      "failures": 0,
+      "ms": 47
+    },
+    {
+      "name": "store_concurrency",
+      "iters": 1348,
+      "failures": 0,
+      "ms": 63
+    },
+    {
+      "name": "autodraft_writer",
+      "iters": 2697,
+      "failures": 0,
+      "ms": 299
+    },
+    {
+      "name": "i18n_dictionary",
+      "iters": 4045,
+      "failures": 0,
+      "ms": 13
+    },
+    {
+      "name": "sc_multiuser",
+      "iters": 8090,
+      "failures": 0,
+      "ms": 5488
+    },
+    {
+      "name": "sc_multilang",
+      "iters": 8090,
+      "failures": 0,
+      "ms": 3898
+    },
+    {
+      "name": "sc_revision",
+      "iters": 5393,
+      "failures": 0,
+      "ms": 3259
+    },
+    {
+      "name": "sc_backup",
+      "iters": 5393,
+      "failures": 0,
+      "ms": 854
+    },
+    {
+      "name": "sc_llm_safety",
+      "iters": 4045,
+      "failures": 0,
+      "ms": 6
+    },
+    {
+      "name": "sc_longterm",
+      "iters": 6742,
+      "failures": 0,
+      "ms": 6456
+    },
+    {
+      "name": "sc_license",
+      "iters": 4045,
+      "failures": 0,
+      "ms": 217
+    },
+    {
+      "name": "sc_ledger_scale",
+      "iters": 3371,
+      "failures": 0,
+      "ms": 437
+    },
+    {
+      "name": "sc_store_migration",
+      "iters": 2697,
+      "failures": 0,
+      "ms": 52
+    },
+    {
+      "name": "sc_tamper",
+      "iters": 5393,
+      "failures": 0,
+      "ms": 2908
+    },
+    {
+      "name": "sc_calendar",
+      "iters": 6742,
+      "failures": 0,
+      "ms": 2714
+    },
+    {
+      "name": "sc_false_claim",
+      "iters": 6742,
+      "failures": 0,
+      "ms": 2991
+    },
+    {
+      "name": "e2e_pipeline",
+      "iters": 337,
+      "failures": 0,
+      "ms": 405
+    }
+  ],
+  "defects": []
+}

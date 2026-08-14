@@ -1,0 +1,78 @@
+══════════════════════════════════════════════════════════════
+  AAA-RNS — AI Agent Research Notebook Automation System
+  Installation notice                       (한국어: 설치안내.txt)
+                                            (日本語: INSTALL.ja.txt)
+══════════════════════════════════════════════════════════════
+
+- INSTALL
+
+  1. Unzip this archive wherever you like.
+     -> That is the whole installation. There is no installer.
+        It is fully self-contained: no server, no database, no
+        internet connection, and no registration key.
+
+- RUN - one double-click and the first screen opens by itself
+
+  * Mac      : double-click  start_mac.command
+               If macOS warns about an unidentified developer the
+               first time, right-click the file -> [Open] -> [Open].
+
+  * Windows  : double-click  start_windows.bat
+               If SmartScreen warns the first time, choose
+               [More info] -> [Run anyway].
+               Python is not required - it falls back to a
+               PowerShell server automatically.
+
+  A black window (the server) appears and Chrome or Edge opens on
+  the first screen.
+
+  ! Closing the black window shuts the system down. Leave it open
+    while you work.
+  ! Shared-folder mode (team collaboration) works only in Chrome
+    or Edge.
+  ! The server window is in English whatever interface language
+    you choose - terminal fonts cannot be relied on to render
+    Korean or Japanese, and English beats unreadable characters.
+
+- WHAT TO DO ON THE FIRST SCREEN
+
+  1. Upload your research documents - R&D plan, proposal,
+     schedule, metrics table (PDF, DOCX, XLSX, HWPX, CSV, TXT)
+     To try it first, upload the samples in the sample_docs folder.
+  2. Deep analysis    - the project structure is extracted
+  3. Review           - check and correct each extracted item
+  4. Generate system  - your project's notebook environment is built
+
+  The interface language follows your browser on first run and can
+  be changed at the top right at any time (Korean / English /
+  Japanese).
+
+- DOCUMENTS (provided separately)
+
+  This archive contains only what is needed to run the software.
+  Download the documents you want from the GitHub repository:
+
+    . docs/en/installation-guide.pdf   full walkthrough with real
+                                       screen captures
+    . docs/en/user-manual.md           day-to-day reference
+    . docs/en/verification-report.md   simulation verification
+    . docs/en/training-deck.pdf        slides for introducing the
+                                       system to a team
+
+  (Korean and Japanese versions are under docs/ko/ and docs/ja/
+   with identical filenames. This file is enough for installation
+   and first use.)
+
+- TROUBLESHOOTING
+
+  . Browser did not open: type the address yourself
+      http://localhost:8777
+  . "Cannot open port": another copy is probably already running
+  . Display looks wrong: hard-reload the browser
+      Ctrl+Shift+R  (Mac: Cmd+Shift+R)
+
+──────────────────────────────────────────────────────────────
+  AAA-RNS v2.0 (2026)
+  Developed by Seung Ho Jung
+  License: Apache-2.0 (c) 2026 Seung Ho Jung
+══════════════════════════════════════════════════════════════

@@ -1,0 +1,235 @@
+{
+  "product": "AAA-RNS 2.0",
+  "cycle": 5,
+  "max_cycles": 12,
+  "executed_at": "2026-08-14T01:33:42.427Z",
+  "iterations": 140003,
+  "min_required": 100000,
+  "duration_ms": 39622,
+  "failures_total": 2057,
+  "distinct_defects": 5,
+  "verdict": "FAIL",
+  "categories": [
+    {
+      "name": "util_dates",
+      "iters": 7551,
+      "failures": 0,
+      "ms": 83
+    },
+    {
+      "name": "util_numbers",
+      "iters": 5034,
+      "failures": 0,
+      "ms": 47
+    },
+    {
+      "name": "csv_roundtrip",
+      "iters": 3146,
+      "failures": 0,
+      "ms": 10
+    },
+    {
+      "name": "docx_roundtrip",
+      "iters": 1888,
+      "failures": 0,
+      "ms": 118
+    },
+    {
+      "name": "xlsx_roundtrip",
+      "iters": 1888,
+      "failures": 0,
+      "ms": 93
+    },
+    {
+      "name": "parser_fuzz",
+      "iters": 5034,
+      "failures": 0,
+      "ms": 143
+    },
+    {
+      "name": "analyzer_truth",
+      "iters": 6292,
+      "failures": 0,
+      "ms": 459
+    },
+    {
+      "name": "analyzer_adversarial",
+      "iters": 5034,
+      "failures": 0,
+      "ms": 221
+    },
+    {
+      "name": "generator_invariants",
+      "iters": 15730,
+      "failures": 0,
+      "ms": 10415
+    },
+    {
+      "name": "gates_planted",
+      "iters": 9438,
+      "failures": 0,
+      "ms": 318
+    },
+    {
+      "name": "notes_lifecycle",
+      "iters": 5034,
+      "failures": 0,
+      "ms": 737
+    },
+    {
+      "name": "ledger_citations",
+      "iters": 1888,
+      "failures": 0,
+      "ms": 18
+    },
+    {
+      "name": "format_edges",
+      "iters": 1888,
+      "failures": 0,
+      "ms": 46
+    },
+    {
+      "name": "store_concurrency",
+      "iters": 1258,
+      "failures": 0,
+      "ms": 57
+    },
+    {
+      "name": "autodraft_writer",
+      "iters": 2517,
+      "failures": 0,
+      "ms": 283
+    },
+    {
+      "name": "i18n_dictionary",
+      "iters": 3775,
+      "failures": 0,
+      "ms": 14
+    },
+    {
+      "name": "sc_multiuser",
+      "iters": 7551,
+      "failures": 0,
+      "ms": 4535
+    },
+    {
+      "name": "sc_multilang",
+      "iters": 7551,
+      "failures": 0,
+      "ms": 3601
+    },
+    {
+      "name": "sc_revision",
+      "iters": 5034,
+      "failures": 0,
+      "ms": 2821
+    },
+    {
+      "name": "sc_backup",
+      "iters": 5034,
+      "failures": 0,
+      "ms": 815
+    },
+    {
+      "name": "sc_llm_safety",
+      "iters": 3775,
+      "failures": 0,
+      "ms": 6
+    },
+    {
+      "name": "sc_longterm",
+      "iters": 6292,
+      "failures": 0,
+      "ms": 6051
+    },
+    {
+      "name": "sc_license",
+      "iters": 3775,
+      "failures": 0,
+      "ms": 207
+    },
+    {
+      "name": "sc_ledger_scale",
+      "iters": 3146,
+      "failures": 0,
+      "ms": 408
+    },
+    {
+      "name": "sc_store_migration",
+      "iters": 2517,
+      "failures": 0,
+      "ms": 49
+    },
+    {
+      "name": "sc_tamper",
+      "iters": 5034,
+      "failures": 1045,
+      "ms": 2408
+    },
+    {
+      "name": "sc_calendar",
+      "iters": 6292,
+      "failures": 0,
+      "ms": 2473
+    },
+    {
+      "name": "sc_false_claim",
+      "iters": 6292,
+      "failures": 1012,
+      "ms": 2806
+    },
+    {
+      "name": "e2e_pipeline",
+      "iters": 315,
+      "failures": 0,
+      "ms": 379
+    }
+  ],
+  "defects": [
+    {
+      "signature": "sc_tamper::[signer] 사후 변조가 탐지되지 않음",
+      "count": 1045,
+      "example": {
+        "category": "sc_tamper",
+        "seed": 75000171,
+        "message": "[signer] 사후 변조가 탐지되지 않음"
+      }
+    },
+    {
+      "signature": "sc_false_claim::[under_achieved] 거짓 성과가 G# 를 통과함 (값=#%, 목표=#%)",
+      "count": 501,
+      "example": {
+        "category": "sc_false_claim",
+        "seed": 77000213,
+        "message": "[under_achieved] 거짓 성과가 G3 를 통과함 (값=72%, 목표=82%)"
+      }
+    },
+    {
+      "signature": "sc_false_claim::[under_achieved] 거짓 성과가 G# 를 통과함 (값=#건, 목표=#건)",
+      "count": 263,
+      "example": {
+        "category": "sc_false_claim",
+        "seed": 77000212,
+        "message": "[under_achieved] 거짓 성과가 G3 를 통과함 (값=0건, 목표=3건)"
+      }
+    },
+    {
+      "signature": "sc_false_claim::[under_achieved] 거짓 성과가 G# 를 통과함 (값=#ms, 목표=#ms)",
+      "count": 129,
+      "example": {
+        "category": "sc_false_claim",
+        "seed": 77000199,
+        "message": "[under_achieved] 거짓 성과가 G3 를 통과함 (값=105ms, 목표=95ms)"
+      }
+    },
+    {
+      "signature": "sc_false_claim::[under_achieved] 거짓 성과가 G# 를 통과함 (값=#시간, 목표=#시간)",
+      "count": 119,
+      "example": {
+        "category": "sc_false_claim",
+        "seed": 77000179,
+        "message": "[under_achieved] 거짓 성과가 G3 를 통과함 (값=16775시간, 목표=16785시간)"
+      }
+    }
+  ]
+}

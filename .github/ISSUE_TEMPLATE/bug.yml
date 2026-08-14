@@ -1,0 +1,57 @@
+name: Bug report
+description: Something does not work as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Several past defects appeared in only one interface language, so please do fill in
+        the language field — it is often the fastest route to the cause.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+      placeholder: |
+        1. Opened the Planner → WP Gantt
+        2. Clicked a WP row
+        Expected: the related research notes
+        Actual: nothing happened
+    validations: { required: true }
+  - type: dropdown
+    id: lang
+    attributes:
+      label: Interface language
+      options: ["한국어", "English", "日本語"]
+    validations: { required: true }
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 15.2 / Windows 11 23H2 / Ubuntu 24.04
+    validations: { required: true }
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 141 / Edge 141
+    validations: { required: true }
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: "Output of `python3 --version`"
+      placeholder: Python 3.12.4
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console output
+      description: F12 → Console. Paste any errors — this is usually decisive.
+      render: text
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Before you submit
+      options:
+        - label: I have removed any real project data, names, or evidence content from this report.
+          required: true

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="institutional">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 콘텐츠 보안 정책 — 완전 오프라인 동작. 외부 도메인 연결 자체를 차단한다.
+     · 모든 파서·문서 생성기·차트가 자체 구현이므로 CDN 이 필요 없다.
+     · connect-src 'self' — 저장형 XSS 가 있어도 데이터를 외부로 유출할 수 없다.
+     · LLM 엔진(Claude·Gemini·OpenAI) 엔드포인트 3곳만 예외로 허용한다 — 그 외 외부 연결은 전부 차단. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com https://api.openai.com; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+<title>AI 에이전트 연구노트 자동화 시스템 · AAA-RNS</title>
+<meta name="author" content="Seung Ho Jung">
+<meta name="description" content="AAA-RNS — AI Agent-driven Autonomous Research Notebook System. Developed by Seung Ho Jung.">
+<link rel="stylesheet" href="css/app.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2314508f'/><g fill='none' stroke='white' stroke-width='5.5' stroke-linecap='round' stroke-linejoin='round'><rect x='26' y='14' width='52' height='68' rx='8'/><path d='M40 14v68'/><path d='M50 32h18M50 46h18M50 60h11'/></g></svg>">
+</head>
+<body>
+<div id="app" hidden>
+  <aside id="side">
+    <div id="brand">
+      <div class="t" id="brandName">AAA-RNS</div>
+      <div class="s" id="brandCode">—</div>
+    </div>
+    <div id="sideStore" hidden></div>
+    <nav id="nav"></nav>
+    <div id="sideFoot">
+      AAA-RNS v2.0<br>
+      AI 에이전트 연구노트 자동화 시스템<br>
+      <span class="mono" style="font-size:9.5px">AI Agent-driven Autonomous<br>Research Notebook System</span><br>
+      <span class="devCred" title="AAA-RNS v2.0 · 2026 · All architecture, engines and verification by Seung Ho Jung">Developed by <b>Seung Ho Jung</b></span>
+    </div>
+  </aside>
+  <div id="main">
+    <header id="topbar">
+      <button id="topBack" title="이전 화면으로" hidden>&#8592;</button>
+      <div id="topTitle">대시보드</div>
+      <div id="topMeta"></div>
+      <div id="topRight"></div>
+    </header>
+    <div id="content"></div>
+  </div>
+</div>
+
+<div id="onboard" hidden></div>
+<!-- 첫 화면(설치 등록 인증·온보딩) 전용 언어 선택기.
+     #onboard 밖에 두어 화면이 다시 그려져도 사라지지 않는다.
+     앱에 진입하면 헤더의 선택기가 그 역할을 이어받는다. -->
+<div id="preLang" hidden data-no-i18n="1"></div>
+<div id="toast"></div>
+<div id="printArea" hidden></div>
+
+<script type="module" src="js/ui/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/USERNAME/aaa-rns/discussions
+    about: Ask in Discussions — answers there are indexed and help the next person.
+  - name: Security vulnerability
+    url: https://github.com/USERNAME/aaa-rns/security/policy
+    about: Please report privately, not as a public issue.

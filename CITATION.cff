@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "AAA-RNS: AI Agent-driven Autonomous Research Notebook System"
+abstract: >-
+  An offline, server-free research notebook that builds a project-specific
+  documentation system from a laboratory's own planning documents, drafts
+  research notes from uploaded experiment logs and measurement data, links
+  every generated sentence to an entry in an evidence ledger, and refuses to
+  seal a note containing a claim the ledger does not support. Sealed notes are
+  chained with a SHA-256 hash covering both content and signatures. Runs
+  entirely in the browser with no external dependencies, in Korean, English
+  and Japanese.
+type: software
+authors:
+  - given-names: Seung Ho
+    family-names: Jung
+    email: seung.jung@gmail.com
+version: 2.0.0
+date-released: "2026-08-14"
+license: Apache-2.0
+repository-code: "https://github.com/USERNAME/aaa-rns"
+keywords:
+  - electronic lab notebook
+  - research data management
+  - research integrity
+  - reproducible research
+  - provenance
+  - offline-first

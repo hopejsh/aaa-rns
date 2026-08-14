@@ -1,0 +1,49 @@
+# ══════════════════════════════════════════════════════════════
+# AAA-RNS — 공개 저장소에 올라가면 안 되는 것들
+#
+# 원칙: 회사 기록 데이터와 서명 자료는 프로그램과 완전히 분리한다.
+# 무시 규칙은 `git add -f` 로 우회되므로, 서명 개인키는 규칙에 기대지
+# 않고 아예 저장소 밖(~/.aaa-rns-signing/)에 둔다. 아래 글롭은 실수로
+# 다시 들어오는 경우를 막는 두 번째 방어선이다.
+# ══════════════════════════════════════════════════════════════
+
+# ── 시스템 잡파일 ──
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# ── 회사 기록 데이터 (프로그램과 분리 — 저장소에 올리지 않음) ──
+data/
+notes/
+notes_files/
+ledger/
+archive/
+exports/
+_INBOX/
+_REVIEW/
+가상문서/
+demo_data/
+
+# ── 배포 산출물 (GitHub Release 자산으로 배포) ──
+dist/
+
+# ── 서명 개인키·발급 대장 — 절대 공개 금지 ──
+#    실제 파일은 ~/.aaa-rns-signing/ 에 있다. 아래는 방어적 글롭.
+tools/license_keys*.json
+tools/licenses/
+*.lic
+
+# ── 문서 빌더 중간 산출물 ──
+docs/src/*/guide.html
+docs/**/*.dc.html
+
+# ── 편집기·백업·임시 ──
+.vscode/
+.idea/
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+node_modules/

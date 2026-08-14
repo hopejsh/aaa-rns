@@ -1,0 +1,172 @@
+{
+  "product": "AAA-RNS 2.0",
+  "cycle": 1,
+  "max_cycles": 12,
+  "executed_at": "2026-08-14T01:28:32.476Z",
+  "iterations": 125001,
+  "min_required": 100000,
+  "duration_ms": 34630,
+  "failures_total": 13928,
+  "distinct_defects": 2,
+  "verdict": "FAIL",
+  "categories": [
+    {
+      "name": "util_dates",
+      "iters": 8357,
+      "failures": 0,
+      "ms": 93
+    },
+    {
+      "name": "util_numbers",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 53
+    },
+    {
+      "name": "csv_roundtrip",
+      "iters": 3482,
+      "failures": 0,
+      "ms": 10
+    },
+    {
+      "name": "docx_roundtrip",
+      "iters": 2089,
+      "failures": 0,
+      "ms": 132
+    },
+    {
+      "name": "xlsx_roundtrip",
+      "iters": 2089,
+      "failures": 0,
+      "ms": 102
+    },
+    {
+      "name": "parser_fuzz",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 156
+    },
+    {
+      "name": "analyzer_truth",
+      "iters": 6964,
+      "failures": 0,
+      "ms": 497
+    },
+    {
+      "name": "analyzer_adversarial",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 237
+    },
+    {
+      "name": "generator_invariants",
+      "iters": 17409,
+      "failures": 0,
+      "ms": 11448
+    },
+    {
+      "name": "gates_planted",
+      "iters": 10446,
+      "failures": 0,
+      "ms": 357
+    },
+    {
+      "name": "notes_lifecycle",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 808
+    },
+    {
+      "name": "ledger_citations",
+      "iters": 2089,
+      "failures": 0,
+      "ms": 20
+    },
+    {
+      "name": "format_edges",
+      "iters": 2089,
+      "failures": 0,
+      "ms": 50
+    },
+    {
+      "name": "store_concurrency",
+      "iters": 1393,
+      "failures": 0,
+      "ms": 64
+    },
+    {
+      "name": "autodraft_writer",
+      "iters": 2786,
+      "failures": 0,
+      "ms": 308
+    },
+    {
+      "name": "i18n_dictionary",
+      "iters": 4178,
+      "failures": 0,
+      "ms": 16
+    },
+    {
+      "name": "sc_multiuser",
+      "iters": 8357,
+      "failures": 8357,
+      "ms": 4987
+    },
+    {
+      "name": "sc_multilang",
+      "iters": 8357,
+      "failures": 0,
+      "ms": 3802
+    },
+    {
+      "name": "sc_revision",
+      "iters": 5571,
+      "failures": 5571,
+      "ms": 2986
+    },
+    {
+      "name": "sc_backup",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 894
+    },
+    {
+      "name": "sc_llm_safety",
+      "iters": 4178,
+      "failures": 0,
+      "ms": 6
+    },
+    {
+      "name": "sc_longterm",
+      "iters": 6964,
+      "failures": 0,
+      "ms": 7232
+    },
+    {
+      "name": "e2e_pipeline",
+      "iters": 348,
+      "failures": 0,
+      "ms": 371
+    }
+  ],
+  "defects": [
+    {
+      "signature": "sc_multiuser::동시 작성 후 해시 체인 손상: ",
+      "count": 8357,
+      "example": {
+        "category": "sc_multiuser",
+        "seed": 26000067,
+        "message": "동시 작성 후 해시 체인 손상: "
+      }
+    },
+    {
+      "signature": "sc_revision::개정 체인 손상: ",
+      "count": 5571,
+      "example": {
+        "category": "sc_revision",
+        "seed": 28000073,
+        "message": "개정 체인 손상: "
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "AAA-RNS: AI Agent-driven Autonomous Research Notebook System",
+  "description": "An offline, server-free research notebook that builds a project-specific documentation system from a laboratory's own planning documents, drafts research notes from uploaded experiment logs and measurement data, links every generated sentence to an entry in an evidence ledger, and refuses to seal a note containing a claim the ledger does not support.",
+  "version": "2.0.0",
+  "dateModified": "2026-08-14",
+  "license": "https://spdx.org/licenses/Apache-2.0",
+  "programmingLanguage": ["JavaScript", "Python"],
+  "runtimePlatform": ["Web browser", "Python 3"],
+  "operatingSystem": ["macOS", "Windows", "Linux"],
+  "applicationCategory": "Electronic Laboratory Notebook",
+  "developmentStatus": "active",
+  "author": [
+    { "@type": "Person", "givenName": "Seung Ho", "familyName": "Jung" }
+  ],
+  "keywords": [
+    "electronic lab notebook",
+    "research data management",
+    "research integrity",
+    "reproducible research",
+    "provenance",
+    "offline-first"
+  ]
+}

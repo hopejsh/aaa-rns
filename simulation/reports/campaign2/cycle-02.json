@@ -1,0 +1,153 @@
+{
+  "product": "AAA-RNS 2.0",
+  "cycle": 2,
+  "max_cycles": 12,
+  "executed_at": "2026-08-14T01:29:53.341Z",
+  "iterations": 125001,
+  "min_required": 100000,
+  "duration_ms": 34945,
+  "failures_total": 0,
+  "distinct_defects": 0,
+  "verdict": "PASS",
+  "categories": [
+    {
+      "name": "util_dates",
+      "iters": 8357,
+      "failures": 0,
+      "ms": 93
+    },
+    {
+      "name": "util_numbers",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 53
+    },
+    {
+      "name": "csv_roundtrip",
+      "iters": 3482,
+      "failures": 0,
+      "ms": 11
+    },
+    {
+      "name": "docx_roundtrip",
+      "iters": 2089,
+      "failures": 0,
+      "ms": 129
+    },
+    {
+      "name": "xlsx_roundtrip",
+      "iters": 2089,
+      "failures": 0,
+      "ms": 102
+    },
+    {
+      "name": "parser_fuzz",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 162
+    },
+    {
+      "name": "analyzer_truth",
+      "iters": 6964,
+      "failures": 0,
+      "ms": 506
+    },
+    {
+      "name": "analyzer_adversarial",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 240
+    },
+    {
+      "name": "generator_invariants",
+      "iters": 17409,
+      "failures": 0,
+      "ms": 11616
+    },
+    {
+      "name": "gates_planted",
+      "iters": 10446,
+      "failures": 0,
+      "ms": 350
+    },
+    {
+      "name": "notes_lifecycle",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 801
+    },
+    {
+      "name": "ledger_citations",
+      "iters": 2089,
+      "failures": 0,
+      "ms": 20
+    },
+    {
+      "name": "format_edges",
+      "iters": 2089,
+      "failures": 0,
+      "ms": 49
+    },
+    {
+      "name": "store_concurrency",
+      "iters": 1393,
+      "failures": 0,
+      "ms": 67
+    },
+    {
+      "name": "autodraft_writer",
+      "iters": 2786,
+      "failures": 0,
+      "ms": 306
+    },
+    {
+      "name": "i18n_dictionary",
+      "iters": 4178,
+      "failures": 0,
+      "ms": 18
+    },
+    {
+      "name": "sc_multiuser",
+      "iters": 8357,
+      "failures": 0,
+      "ms": 5008
+    },
+    {
+      "name": "sc_multilang",
+      "iters": 8357,
+      "failures": 0,
+      "ms": 3825
+    },
+    {
+      "name": "sc_revision",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 2973
+    },
+    {
+      "name": "sc_backup",
+      "iters": 5571,
+      "failures": 0,
+      "ms": 890
+    },
+    {
+      "name": "sc_llm_safety",
+      "iters": 4178,
+      "failures": 0,
+      "ms": 7
+    },
+    {
+      "name": "sc_longterm",
+      "iters": 6964,
+      "failures": 0,
+      "ms": 7345
+    },
+    {
+      "name": "e2e_pipeline",
+      "iters": 348,
+      "failures": 0,
+      "ms": 373
+    }
+  ],
+  "defects": []
+}

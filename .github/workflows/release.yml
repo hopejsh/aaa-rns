@@ -1,0 +1,34 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the distribution archive
+        run: bash tools/make_dist.sh
+
+      # make_dist.sh already runs verify-dist.sh and deletes the archive on
+      # failure. Running it again here proves the published asset — the exact
+      # bytes being uploaded — passed, rather than trusting the build step.
+      - name: Verify the archive that will actually be published
+        run: bash tools/verify-dist.sh dist/*.zip
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/*.sha256
+            docs/src/decks/training-deck-en.pptx
+            docs/src/decks/training-deck-ko.pptx
+            docs/src/decks/training-deck-ja.pptx
+          generate_release_notes: true
