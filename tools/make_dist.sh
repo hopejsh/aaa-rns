@@ -60,7 +60,10 @@ find "$STAGE" -maxdepth 1 -type d ! -path "$STAGE" -exec sh -c '
 #  · .gitignore/.gitattributes 도 제외 — 최종 사용자에게 의미가 없다.
 
 chmod 0755 "$STAGE/start_mac.command" "$STAGE/server.py"
-for f in "$STAGE"/*문서*.command; do [ -e "$f" ] && chmod 0755 "$f"; done
+# set -e 아래에서 glob 이 아무것도 못 맞히면 [ -e ] 가 1 을 돌려주며 빌드가
+# 통째로 죽는다. 파일명이 한글이라 러너의 로케일·정규화에 따라 실제로 일어날
+# 수 있으므로, 존재 여부를 조건이 아니라 find 로 다룬다.
+find "$STAGE" -maxdepth 1 -name '*.command' -exec chmod 0755 {} +
 
 # 재현 가능한 체크섬을 위해 mtime 을 고정한다. zip -X 는 uid/gid 는 버리지만
 # 항목별 mtime 은 남기므로, 이것 없이는 같은 내용이 매번 다른 해시를 낳는다.

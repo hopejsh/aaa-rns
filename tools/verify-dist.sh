@@ -88,8 +88,11 @@ N=$(grep -rIl 'Seung Ho Jung' "$ROOT" 2>/dev/null | wc -l | tr -d ' ')
 [ "$N" -ge 10 ] && say "개발자 표기 ($N개 파일)" "통과" || bad "개발자 표기" "$N개 파일뿐"
 
 # 10. 라이선스 일관성 ────────────────────────────────────────
-if grep -rIq 'MIT License\|MIT ©' "$ROOT" 2>/dev/null; then
-  bad "라이선스 표기 일관성" "MIT 잔존 — LICENSE 는 Apache-2.0"
+# 변경 이력은 라이선스가 바뀐 사실을 기록하므로 옛 이름을 반드시 포함한다.
+# 그것까지 위반으로 잡으면 "역사를 지워야 검사를 통과"하는 구조가 되어,
+# 근거를 남긴다는 이 제품의 전제와 정면으로 충돌한다. 그래서 제외한다.
+if grep -rIq --exclude=CHANGELOG.md 'MIT License\|MIT ©' "$ROOT" 2>/dev/null; then
+  bad "라이선스 표기 일관성" "MIT 잔존 — LICENSE 는 Apache-2.0: $(grep -rIl --exclude=CHANGELOG.md 'MIT License\|MIT ©' "$ROOT" | head -2 | tr '\n' ' ')"
 else say "라이선스 표기 일관성 (Apache-2.0)" "통과"; fi
 
 echo
