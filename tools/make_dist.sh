@@ -65,12 +65,22 @@ chmod 0755 "$STAGE/start_mac.command" "$STAGE/server.py"
 # 수 있으므로, 존재 여부를 조건이 아니라 find 로 다룬다.
 find "$STAGE" -maxdepth 1 -name '*.command' -exec chmod 0755 {} +
 
-# 재현 가능한 체크섬을 위해 mtime 을 고정한다. zip -X 는 uid/gid 는 버리지만
-# 항목별 mtime 은 남기므로, 이것 없이는 같은 내용이 매번 다른 해시를 낳는다.
+# ── 결정론적 압축 ───────────────────────────────────────────
+# 비결정성의 원인 두 가지를 제거한다.
+#  ① mtime — zip -X 는 uid/gid 는 버리지만 항목별 mtime 은 남긴다.
+#  ② 항목 순서 — zip -r 은 디렉터리를 읽은 순서대로 담으므로 파일시스템에
+#     따라 순서가 달라진다. 목록을 정렬해 표준입력으로 넘긴다.
+#
+# 정직한 한계: 이렇게 해도 **플랫폼이 다르면 해시가 달라진다.** 실제로
+# 확인했다 — 이 스크립트가 만든 macOS 빌드와 GitHub Actions(Ubuntu)
+# 빌드의 SHA-256 이 서로 다르다. Info-ZIP 구현과 zlib 판이 다르면 같은
+# 입력에서도 압축 바이트가 달라지기 때문이며, 위 두 가지로는 해소되지
+# 않는다. 따라서 보장하는 것은 "같은 환경에서 다시 빌드하면 같은 바이트"
+# 까지다. 내려받은 파일의 진위는 함께 배포하는 .sha256 으로 확인한다.
 find "$STAGE" -exec touch -t 202601010000 {} +
 
 rm -f "$OUT_ABS"
-( cd "$TMP" && zip -r -X -q "$OUT_ABS" "$NAME" )
+( cd "$TMP" && find "$NAME" -print | LC_ALL=C sort | zip -X -q -@ "$OUT_ABS" )
 
 # ── 나가기 전 검사 ───────────────────────────────────────────
 if ! bash "${ROOT}/tools/verify-dist.sh" "$OUT_ABS"; then
