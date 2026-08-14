@@ -22,7 +22,20 @@ import { splitSentences, isValidDate } from './util.js';
 import { citationsIn, isNoEvidenceStatement } from './ledger.js';
 
 /* 금지 표현 — 증거 없는 추정·과장 서술 (기존 P4 승계, 일반화 사전) */
+/* 추정·과장 표현 차단.
+ *
+ * 언어별로 따로 적는다. 제품이 한국어·영어·일본어를 동등하게 지원하는데
+ * 이 목록이 한국어뿐이면, G1 은 나머지 두 언어에서 아무 일도 하지 않으면서
+ * "추정 표현을 막는다"고 문서에 적혀 있게 된다 — 실제로 그런 상태였다.
+ *
+ * 오탐을 피하려고 일부러 뺀 것들:
+ *  · 영어 "significant(ly)" — 통계적 유의성이라는 정확한 뜻이 있어서,
+ *    막으면 정상적인 과학 서술을 반려한다. 한국어 '현저히'와 다르다.
+ *  · "about/around/approximately" 는 뒤에 숫자가 올 때만 근사 수치로 본다.
+ *    "data about the sample" 은 근사 표현이 아니다.
+ */
 export const FORBIDDEN_PATTERNS = [
+  /* ── 한국어 ── */
   { re: /보인다|보였다/,           why: '추정 표현' },
   { re: /예상된다|예상됨|전망된다/, why: '전망 표현' },
   { re: /성공적으로|괄목할|현저히|획기적/, why: '평가·과장 표현' },
@@ -31,6 +44,24 @@ export const FORBIDDEN_PATTERNS = [
   { re: /추정된다|추정됨|짐작/,     why: '추정 표현' },
   { re: /아마도?|어쩌면/,           why: '불확실 표현' },
   { re: /것으로\s*판단(?:된다|됨)/, why: '주관 판단 표현' },
+
+  /* ── English ── */
+  { re: /\b(?:appears?|seems?|looks?\s+like)\b/i,          why: '추정 표현' },
+  { re: /\b(?:expected|anticipated|projected)\s+to\b|\bwill\s+likely\b/i, why: '전망 표현' },
+  { re: /\b(?:successfully|remarkabl\w+|dramatic\w*|impressive\w*)\b/i,   why: '평가·과장 표현' },
+  { re: /\b(?:roughly|approximately|about|around)\s+\d/i,  why: '모호한 수량 표현' },
+  { re: /\b(?:presumabl\w+|we\s+estimate|estimated\s+to\s+be)\b/i,        why: '추정 표현' },
+  { re: /\b(?:maybe|perhaps|possibly|probably)\b/i,        why: '불확실 표현' },
+  { re: /\bit\s+(?:is|was)\s+(?:judged|considered|believed)\b/i,          why: '주관 판단 표현' },
+
+  /* ── 日本語 ── */
+  { re: /と思われる|ように見える|模様である/,   why: '추정 표현' },
+  { re: /と予想され|見込まれ|であろう/,         why: '전망 표현' },
+  { re: /成功裏に|著しく|飛躍的|画期的/,        why: '평가·과장 표현' },
+  { re: /(?:およそ|約|ほぼ)\s*\d/,              why: '모호한 수량 표현' },
+  { re: /推定される|と推察/,                    why: '추정 표현' },
+  { re: /おそらく|もしかすると/,                why: '불확실 표현' },
+  { re: /と判断される|と考えられる/,            why: '주관 판단 표현' },
 ];
 
 /* 달성 주장 표현 (한국어·영어·일본어). 부정 표현은 별도로 걸러낸다 —

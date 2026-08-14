@@ -27,7 +27,7 @@ import { parseFile, parseCsv } from '../js/core/parsers.js';
 import { analyzeDocuments } from '../js/core/analyzer.js';
 import { generateSystem, validateSystem, buildPlanner } from '../js/core/generator.js';
 import { EvidenceLedger, citationsIn, stripCitations, isNoEvidenceStatement } from '../js/core/ledger.js';
-import { runGates, FORBIDDEN_PATTERNS } from '../js/core/gates.js';
+import { runGates, gateG1, FORBIDDEN_PATTERNS } from '../js/core/gates.js';
 import { autoRegisterEvidence, buildAutoDraft, applyDraftToNote } from '../js/core/autodraft.js';
 import { buildBackupZip, restoreBackupZip, walkStore, archiveSealedNote } from '../js/core/backup.js';
 import { verifyLicenseKey } from '../js/core/license.js';
@@ -1039,6 +1039,73 @@ const MONTH_EN = [null, 'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 const KO_ALLOWED = /한국어|한글|정승호|Seung Ho Jung|억|천만|검증보고서|사용설명서|설치사용가이드/;
 
+/* ══════════════════════════════════════════════════════════════
+ * G1 금지 표현 — 언어 커버리지
+ *
+ * 왜 별도 카테고리인가: 기존 금지표현 시험은 케이스를 구현
+ * (FORBIDDEN_PATTERNS)에서 가져다 썼다. 그러면 구현이 다루는 것만
+ * 시험하게 되어, "영어·일본어 패턴이 통째로 없다" 같은 누락은 원리적으로
+ * 발견되지 않는다 — 실제로 2,446,015회를 돌리고도 못 잡았다.
+ *
+ * 그래서 여기서는 케이스를 손으로 적는다. 막아야 할 문장과 통과해야 할
+ * 문장을 언어마다 함께 두어, 누락과 오탐을 같은 자리에서 잡는다.
+ * ══════════════════════════════════════════════════════════════ */
+const WORDING_BLOCK = [
+  ['ko', '성능이 크게 개선된 것으로 보인다'],
+  ['ko', '다음 분기에는 목표 달성이 예상된다'],
+  ['ko', '성공적으로 실험을 완료하였다'],
+  ['ko', '약 30% 수준의 향상을 확인하였다'],
+  ['ko', '아마도 장비 오차로 판단된다'],
+  ['en', 'Coating uniformity appears to have improved'],
+  ['en', 'The process was successfully completed'],
+  ['en', 'Yield increased by approximately 30 percent'],
+  ['en', 'Throughput is expected to rise next quarter'],
+  ['en', 'It is judged that the deviation came from the jig'],
+  ['en', 'The result is possibly caused by thermal drift'],
+  ['ja', '性能が改善したと思われる'],
+  ['ja', '約 30% の向上を確認した'],
+  ['ja', '成功裏に実験を完了した'],
+  ['ja', '次期には目標達成が見込まれる'],
+  ['ja', 'おそらく装置誤差と判断される'],
+];
+/* 막으면 안 되는 문장 — 오탐은 정상 기록을 반려시키므로 누락만큼 해롭다 */
+const WORDING_PASS = [
+  ['ko', '에너지 효율은 41.2%에서 43.8%로 증가하였다'],
+  ['en', 'Yield increased from 41.2% to 43.8%'],
+  ['en', 'The difference was statistically significant (p<0.05)'],
+  ['en', 'We recorded data about the sample at 25C'],
+  ['ja', '収率は 41.2% から 43.8% に増加した'],
+];
+
+function catWordingLangs(n, baseSeed) {
+  const C = 'gate_wording_langs';
+  for (let i = 0; i < n; i++) {
+    const seed = baseSeed + i;
+    const rng = makeRng(seed);
+    const wantBlock = rng() < 0.72;
+    const [lang, sent] = pick(rng, wantBlock ? WORDING_BLOCK : WORDING_PASS);
+
+    const ledger = new EvidenceLedger([]);
+    const ev = ledger.add({ kind: 'reference', sourceType: 'upload', sourceFile: 'log.txt',
+      locator: 'L1', content: sent, sha256: 'a'.repeat(64), addedBy: 'sim' });
+    const note = {
+      note_id: `W-${seed}`, period_start: '2030-07-01', period_end: '2030-07-14',
+      author: 'A', reviewer: 'B', state: 'draft',
+      sections: { work: [{ text: `${sent} [${ev.id}]` }] },
+      metrics: [], attachments: [],
+    };
+    const flagged = gateG1(note, { ledger }).violations.some(v => v.check === 'G1-금지표현');
+
+    if (wantBlock && !flagged) fail(C, seed, `[${lang}] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: "${sent}"`);
+    if (!wantBlock && flagged) fail(C, seed, `[${lang}] 정상 문장이 금지 표현으로 반려되었습니다(오탐): "${sent}"`);
+  }
+  /* 세 언어가 실제로 표본에 나오는지 — 한 언어에 쏠리면 시험이 무의미하다 */
+  const seen = new Set();
+  for (let k = 0; k < 400; k++) seen.add(pick(makeRng(baseSeed + k), WORDING_BLOCK)[0]);
+  for (const l of ['ko', 'en', 'ja']) if (!seen.has(l)) fail(C, baseSeed, `표본에 ${l} 케이스가 한 번도 나오지 않았습니다`);
+  return n;
+}
+
 async function catI18n(n, baseSeed) {
   const C = 'i18n_dictionary';
   const keys = Object.keys(DICT);
@@ -1700,6 +1767,7 @@ const PLAN = [
   ['store_concurrency',     2000, catStoreConcurrency],
   ['autodraft_writer',      4000, catAutoDraft],
   ['i18n_dictionary',       6000, catI18n],
+  ['gate_wording_langs',    5000, catWordingLangs],
   ['sc_multiuser',         12000, catMultiUser],
   ['sc_multilang',         12000, catMultiLang],
   ['sc_revision',           8000, catRevisionChain],
