@@ -33,6 +33,9 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.21937755
     description: Version DOI — permanently fixed to v2.0.0 (the first release)
+  - type: other
+    value: "RRID:SCR_028836"
+    description: Research Resource Identifier — cite this inline in a Methods section
 keywords:
   - electronic lab notebook
   - research data management
