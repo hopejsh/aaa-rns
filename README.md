@@ -168,10 +168,6 @@ produces APA and BibTeX for you.
 }
 ```
 
-If your journal uses Research Resource Identifiers, cite the tool inline in the Methods section as
-**AAA-RNS (RRID:SCR_028836)**. That is the registry entry, and it is separate from the DOI: the DOI
-belongs in the reference list, the RRID goes in the running text.
-
 Zenodo issues two DOIs. **`10.5281/zenodo.21937754`** is the *concept* DOI and always resolves to
 the newest release — cite this one normally. **`10.5281/zenodo.21937755`** is the *version* DOI,
 frozen to v2.0.0; cite it instead when the exact bytes matter, such as in a reproducibility
