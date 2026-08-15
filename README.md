@@ -17,6 +17,11 @@ containing a claim the evidence ledger does not support.
 
 Korean · English · Japanese, at parity.
 
+![AAA-RNS in twenty-four seconds: uploading a project plan, the extraction showing a source and a confidence per value, an experiment log and a measurement CSV attached by SHA-256, sections drafted with [E#] citations, four gates running, two people signing, and the note sealed](.github/branding/demo.gif)
+
+*Unzip to sealed note. No server, no account, no build step.*
+
+
 ---
 
 ## Quick start
