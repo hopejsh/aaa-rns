@@ -2,294 +2,200 @@
   "product": "AAA-RNS 2.0",
   "cycle": 2,
   "max_cycles": 12,
-  "executed_at": "2026-08-14T23:52:28.114Z",
-  "iterations": 99999,
+  "executed_at": "2026-08-15T17:37:00.265Z",
+  "iterations": 150001,
   "min_required": 100000,
-  "duration_ms": 29194,
-  "failures_total": 1124,
-  "distinct_defects": 11,
-  "verdict": "FAIL",
+  "duration_ms": 44386,
+  "failures_total": 0,
+  "distinct_defects": 0,
+  "verdict": "PASS",
   "categories": [
     {
       "name": "util_dates",
-      "iters": 5275,
-      "failures": 0,
-      "ms": 59
-    },
-    {
-      "name": "util_numbers",
-      "iters": 3516,
-      "failures": 0,
-      "ms": 34
-    },
-    {
-      "name": "csv_roundtrip",
-      "iters": 2198,
-      "failures": 0,
-      "ms": 7
-    },
-    {
-      "name": "docx_roundtrip",
-      "iters": 1319,
+      "iters": 7809,
       "failures": 0,
       "ms": 86
     },
     {
-      "name": "xlsx_roundtrip",
-      "iters": 1319,
+      "name": "util_numbers",
+      "iters": 5206,
       "failures": 0,
-      "ms": 68
+      "ms": 49
+    },
+    {
+      "name": "csv_roundtrip",
+      "iters": 3254,
+      "failures": 0,
+      "ms": 10
+    },
+    {
+      "name": "docx_roundtrip",
+      "iters": 1952,
+      "failures": 0,
+      "ms": 123
+    },
+    {
+      "name": "xlsx_roundtrip",
+      "iters": 1952,
+      "failures": 0,
+      "ms": 95
     },
     {
       "name": "parser_fuzz",
-      "iters": 3516,
+      "iters": 5206,
       "failures": 0,
-      "ms": 106
+      "ms": 152
     },
     {
       "name": "analyzer_truth",
-      "iters": 4396,
+      "iters": 6508,
       "failures": 0,
-      "ms": 334
+      "ms": 495
     },
     {
       "name": "analyzer_adversarial",
-      "iters": 3516,
+      "iters": 5206,
       "failures": 0,
-      "ms": 160
+      "ms": 230
     },
     {
       "name": "generator_invariants",
-      "iters": 10989,
+      "iters": 16269,
       "failures": 0,
-      "ms": 7671
+      "ms": 11875
     },
     {
       "name": "gates_planted",
-      "iters": 6593,
+      "iters": 9761,
       "failures": 0,
-      "ms": 221
+      "ms": 332
     },
     {
       "name": "notes_lifecycle",
-      "iters": 3516,
+      "iters": 5206,
       "failures": 0,
-      "ms": 774
+      "ms": 1134
     },
     {
       "name": "ledger_citations",
-      "iters": 1319,
+      "iters": 1952,
       "failures": 0,
-      "ms": 13
+      "ms": 19
     },
     {
       "name": "format_edges",
-      "iters": 1319,
+      "iters": 1952,
       "failures": 0,
-      "ms": 33
+      "ms": 47
     },
     {
       "name": "store_concurrency",
-      "iters": 879,
+      "iters": 1302,
       "failures": 0,
-      "ms": 41
+      "ms": 62
     },
     {
       "name": "autodraft_writer",
-      "iters": 1758,
+      "iters": 2603,
       "failures": 0,
-      "ms": 195
+      "ms": 310
     },
     {
       "name": "i18n_dictionary",
-      "iters": 2637,
+      "iters": 3905,
       "failures": 0,
-      "ms": 13
+      "ms": 16
     },
     {
       "name": "gate_wording_langs",
-      "iters": 2198,
-      "failures": 1124,
-      "ms": 5
+      "iters": 3254,
+      "failures": 0,
+      "ms": 7
+    },
+    {
+      "name": "crypto_sign_ts",
+      "iters": 1952,
+      "failures": 0,
+      "ms": 489
     },
     {
       "name": "sc_multiuser",
-      "iters": 5275,
+      "iters": 7809,
       "failures": 0,
-      "ms": 3587
+      "ms": 5432
     },
     {
       "name": "sc_multilang",
-      "iters": 5275,
+      "iters": 7809,
       "failures": 0,
-      "ms": 2446
+      "ms": 3666
     },
     {
       "name": "sc_revision",
-      "iters": 3516,
+      "iters": 5206,
       "failures": 0,
-      "ms": 2097
+      "ms": 3153
     },
     {
       "name": "sc_backup",
-      "iters": 3516,
+      "iters": 5206,
       "failures": 0,
-      "ms": 588
+      "ms": 852
     },
     {
       "name": "sc_llm_safety",
-      "iters": 2637,
+      "iters": 3905,
       "failures": 0,
-      "ms": 4
+      "ms": 8
     },
     {
       "name": "sc_longterm",
-      "iters": 4396,
+      "iters": 6508,
       "failures": 0,
-      "ms": 4314
+      "ms": 6276
     },
     {
       "name": "sc_license",
-      "iters": 2637,
+      "iters": 3905,
       "failures": 0,
-      "ms": 11
+      "ms": 16
     },
     {
       "name": "sc_ledger_scale",
-      "iters": 2198,
+      "iters": 3254,
       "failures": 0,
-      "ms": 288
+      "ms": 428
     },
     {
       "name": "sc_store_migration",
-      "iters": 1758,
+      "iters": 2603,
       "failures": 0,
-      "ms": 33
+      "ms": 51
     },
     {
       "name": "sc_tamper",
-      "iters": 3516,
+      "iters": 5206,
       "failures": 0,
-      "ms": 1984
+      "ms": 2903
     },
     {
       "name": "sc_calendar",
-      "iters": 4396,
+      "iters": 6508,
       "failures": 0,
-      "ms": 1763
+      "ms": 2710
     },
     {
       "name": "sc_false_claim",
-      "iters": 4396,
+      "iters": 6508,
       "failures": 0,
-      "ms": 1988
+      "ms": 2957
     },
     {
       "name": "e2e_pipeline",
-      "iters": 220,
+      "iters": 325,
       "failures": 0,
-      "ms": 269
+      "ms": 400
     }
   ],
-  "defects": [
-    {
-      "signature": "gate_wording_langs::[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"次期には目標達成が見込まれる\"",
-      "count": 117,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000136,
-        "message": "[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"次期には目標達成が見込まれる\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"Yield increased by approximately # percent\"",
-      "count": 116,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000088,
-        "message": "[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"Yield increased by approximately 30 percent\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"おそらく装置誤差と判断される\"",
-      "count": 109,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000092,
-        "message": "[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"おそらく装置誤差と判断される\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"約 #% の向上を確認した\"",
-      "count": 105,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000106,
-        "message": "[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"約 30% の向上を確認した\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"Coating uniformity appears to have improved\"",
-      "count": 103,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000090,
-        "message": "[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"Coating uniformity appears to have improved\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"It is judged that the deviation came from the jig\"",
-      "count": 100,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000091,
-        "message": "[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"It is judged that the deviation came from the jig\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"Throughput is expected to rise next quarter\"",
-      "count": 99,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000101,
-        "message": "[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"Throughput is expected to rise next quarter\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"The process was successfully completed\"",
-      "count": 98,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000099,
-        "message": "[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"The process was successfully completed\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"The result is possibly caused by thermal drift\"",
-      "count": 97,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000086,
-        "message": "[en] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"The result is possibly caused by thermal drift\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"性能が改善したと思われる\"",
-      "count": 92,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000119,
-        "message": "[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"性能が改善したと思われる\""
-      }
-    },
-    {
-      "signature": "gate_wording_langs::[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"成功裏に実験を完了した\"",
-      "count": 88,
-      "example": {
-        "category": "gate_wording_langs",
-        "seed": 36000102,
-        "message": "[ja] 금지 표현이 통과했습니다 — 이 언어의 패턴이 없습니다: \"成功裏に実験を完了した\""
-      }
-    }
-  ]
+  "defects": []
 }

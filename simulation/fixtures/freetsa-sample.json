@@ -1,0 +1,7 @@
+{
+  "설명": "FreeTSA 실응답 픽스처 — 2026-08-15 openssl ts -verify 'Verification: OK' 확인본",
+  "대상_해시": "5ab17513c85bc931b83a6c17da0d37a70ae9bca69ae18b01997d86d86063e8ee",
+  "gen_time": "2026-08-15T16:52:00Z",
+  "serial_hex": "0702b75b",
+  "openssl_교차검증": "Time stamp: Aug 15 16:52:00 2026 GMT / Serial 0x0702B75B"
+}

@@ -36,8 +36,11 @@ import { DICT, PATTERNS, INLINE_PATTERNS } from '../js/i18n/dict.js';
 import {
   createNote, noteIdFor, parseNoteId, noteContentHash, commitNote, applyGateResult,
   addContributorSignature, sealNote, reviseNote, verifySealChain, verifyNoteIntegrity,
+  attachTimestamp, sealHashOf, verifyCryptoSignatures,
 } from '../js/core/notes.js';
 import { MemoryStore, RevConflictError } from '../js/core/store.js';
+import { hashPin, verifyPin, verifyDeviceSignature, b64u, hexToBytes } from '../js/core/signing.js';
+import { buildTsq, parseTsr, verifyStoredTimestamp, generalizedTimeToIso } from '../js/core/timestamp.js';
 import { docxBuild, xlsxBuild, noteToDocxBlocks, zipBuild, crc32 } from '../js/core/docgen.js';
 import {
   makeRng, pick, rint, chance, synthProject, synthPlanDocx, synthKpiXlsx, synthParsedDoc,
@@ -1750,6 +1753,187 @@ async function catFalseClaim(n, baseSeed) {
   return n;
 }
 
+
+/* ══════════════════════════════════════════════════════════
+ * 카테고리 · 암호 서명·시점인증 (crypto_sign_ts)
+ *
+ * 기대값은 구현에서 가져오지 않는다:
+ *   · TSR 픽스처는 FreeTSA 실응답이고, 기대 genTime·serial·imprint 는
+ *     openssl ts -reply -text 출력에서 손으로 옮겼다 (2026-08-15,
+ *     'Verification: OK' 확인본 — fixtures/freetsa-sample.json).
+ *   · TSQ 구조 검사는 RFC 3161 §2.4.1 의 필드 정의를 기준으로 한다.
+ * ══════════════════════════════════════════════════════════ */
+const FIXTURE_TSR = new Uint8Array(readFileSync(join(__dir, 'fixtures', 'freetsa-sample.tsr')));
+const FIXTURE_HASH = '5ab17513c85bc931b83a6c17da0d37a70ae9bca69ae18b01997d86d86063e8ee';
+const FIXTURE_GEN  = '2026-08-15T16:52:00Z';
+const FIXTURE_SERIAL = '0702b75b';
+const SHA256_OID_BYTES = [0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01];
+
+function bytesIndexOf(hay, needle, from = 0) {
+  outer:
+  for (let i = from; i <= hay.length - needle.length; i++) {
+    for (let k = 0; k < needle.length; k++) if (hay[i + k] !== needle[k]) continue outer;
+    return i;
+  }
+  return -1;
+}
+function hexFromRng(rng, nBytes) {
+  let h = '';
+  for (let i = 0; i < nBytes; i++) h += rint(rng, 0, 255).toString(16).padStart(2, '0');
+  return h;
+}
+
+async function catCryptoSignTs(n, baseSeed) {
+  const C = 'crypto_sign_ts';
+  const subtle = globalThis.crypto.subtle;
+  const TE = new TextEncoder();
+
+  /* 준비물(1회): 실키 1쌍 + 위장용 다른 키 1쌍 + PBKDF2 기록 */
+  const pair = await subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign', 'verify']);
+  const pubJwk = await subtle.exportKey('jwk', pair.publicKey);
+  const rogue = await subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign', 'verify']);
+  const roguePub = await subtle.exportKey('jwk', rogue.publicKey);
+  const PIN = '482913';
+  const pinRec = await hashPin(PIN);
+  const legacyHexBuf = await subtle.digest('SHA-256', TE.encode(PIN));
+  const legacyHex = [...new Uint8Array(legacyHexBuf)].map(x => x.toString(16).padStart(2, '0')).join('');
+  const tokenB64 = b64u(FIXTURE_TSR);
+
+  /* 픽스처 파싱은 반복 불변 — 1회 검사로 족하다 */
+  {
+    const p0 = parseTsr(FIXTURE_TSR);
+    assert(p0.statusOk, C, baseSeed, 'TSR 픽스처: status 가 granted 가 아닙니다');
+    assert(p0.imprintHex === FIXTURE_HASH, C, baseSeed,
+      `TSR 픽스처: imprint 불일치 — openssl 은 ${FIXTURE_HASH.slice(0, 16)}…, 파서는 ${String(p0.imprintHex).slice(0, 16)}…`);
+    assert(p0.genTimeIso === FIXTURE_GEN, C, baseSeed,
+      `TSR 픽스처: genTime 불일치 — openssl 은 ${FIXTURE_GEN}, 파서는 ${p0.genTimeIso}`);
+    assert(p0.serialHex === FIXTURE_SERIAL, C, baseSeed,
+      `TSR 픽스처: serial 불일치 — openssl 은 ${FIXTURE_SERIAL}, 파서는 ${p0.serialHex}`);
+    const vs = verifyStoredTimestamp({ token_b64: tokenB64 }, FIXTURE_HASH);
+    assert(vs.ok === true, C, baseSeed, `verifyStoredTimestamp: 정상 토큰이 거부되었습니다 — ${vs.reason}`);
+    assert(generalizedTimeToIso('20260815165200Z') === FIXTURE_GEN, C, baseSeed, 'GeneralizedTime 변환 불일치');
+    assert(generalizedTimeToIso('2026-08-15') === null, C, baseSeed, 'GeneralizedTime: 형식 위반이 통과했습니다');
+  }
+
+  for (let i = 0; i < n; i++) {
+    const seed = baseSeed + i;
+    const rng = makeRng(seed);
+    const hash = hexFromRng(rng, 32);
+
+    /* ① TSQ — RFC 3161 §2.4.1 구조를 바이트 수준으로 검사 */
+    const nonce = new Uint8Array(8);
+    for (let k = 0; k < 8; k++) nonce[k] = rint(rng, 0, 255);
+    const tsq = buildTsq(hash, nonce);
+    const tsq2 = buildTsq(hash, nonce);
+    assert(tsq.length === tsq2.length && bytesIndexOf(tsq, tsq2) === 0, C, seed, 'TSQ: 같은 입력이 다른 바이트를 냈습니다');
+    assert(tsq[0] === 0x30, C, seed, 'TSQ: 최상위가 SEQUENCE 가 아닙니다');
+    assert(bytesIndexOf(tsq, new Uint8Array([0x02, 0x01, 0x01])) === 2, C, seed, 'TSQ: version INTEGER 1 이 선두에 없습니다');
+    assert(bytesIndexOf(tsq, new Uint8Array(SHA256_OID_BYTES)) > 0, C, seed, 'TSQ: SHA-256 OID 가 없습니다');
+    const imp = bytesIndexOf(tsq, hexToBytes(hash));
+    assert(imp > 0 && tsq[imp - 2] === 0x04 && tsq[imp - 1] === 0x20, C, seed, 'TSQ: 해시가 OCTET STRING(32)로 실리지 않았습니다');
+    assert(tsq[tsq.length - 3] === 0x01 && tsq[tsq.length - 2] === 0x01 && tsq[tsq.length - 1] === 0xff,
+      C, seed, 'TSQ: certReq TRUE 가 마지막 필드가 아닙니다');
+    /* nonce INTEGER 는 양수여야 한다 — 최상위 비트가 서면 00 패딩 필수 */
+    const nOff = bytesIndexOf(tsq, nonce[0] & 0x80 ? concatU8([0x02, 0x09, 0x00], nonce) : concatU8([0x02, 0x08], nonce));
+    assert(nOff > 0, C, seed, 'TSQ: nonce INTEGER 인코딩(양수 보장)이 틀렸습니다');
+    if (hash.length !== 64) assert(false, C, seed, '시험 자체 오류');
+
+    /* ② 잘못된 입력 거부 */
+    let threw = false;
+    try { buildTsq(hash.slice(0, 62)); } catch { threw = true; }
+    assert(threw, C, seed, 'TSQ: 32바이트가 아닌 해시가 통과했습니다');
+
+    /* ③ 토큰 변조 → imprint 대조 실패 (매 10회) */
+    if (i % 10 === 0) {
+      const at = bytesIndexOf(FIXTURE_TSR, hexToBytes(FIXTURE_HASH));
+      assert(at > 0, C, seed, 'TSR 픽스처에서 imprint 위치를 찾지 못했습니다');
+      const mut = FIXTURE_TSR.slice();
+      mut[at + rint(rng, 0, 31)] ^= (1 << rint(rng, 0, 7));
+      const v = verifyStoredTimestamp({ token_b64: b64u(mut) }, FIXTURE_HASH);
+      assert(v.ok === false, C, seed, '변조된 토큰(imprint 1비트 반전)이 검증을 통과했습니다');
+      const w = verifyStoredTimestamp({ token_b64: tokenB64 }, hash);
+      assert(w.ok === false, C, seed, '다른 해시에 대해 토큰이 검증을 통과했습니다');
+    }
+
+    /* ④ ECDSA 서명·검증 + 변조/키 바꿔치기 거부 */
+    const sigBuf = await subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, pair.privateKey, TE.encode(hash));
+    const entry = { sig_alg: 'ES256', pub_jwk: pubJwk, sig: b64u(sigBuf) };
+    assert(await verifyDeviceSignature(entry, hash) === true, C, seed, 'ECDSA: 정상 서명이 거부되었습니다');
+    const mode = rint(rng, 0, 3);
+    if (mode === 0) {
+      const bad = new Uint8Array(sigBuf.slice(0));
+      bad[rint(rng, 0, bad.length - 1)] ^= (1 << rint(rng, 0, 7));
+      assert(await verifyDeviceSignature({ ...entry, sig: b64u(bad) }, hash) === false, C, seed, 'ECDSA: 변조 서명이 통과했습니다');
+    } else if (mode === 1) {
+      assert(await verifyDeviceSignature(entry, hexFromRng(rng, 32)) === false, C, seed, 'ECDSA: 다른 메시지에 서명이 통과했습니다');
+    } else if (mode === 2) {
+      assert(await verifyDeviceSignature({ ...entry, pub_jwk: roguePub }, hash) === false, C, seed, 'ECDSA: 다른 공개키로 통과했습니다');
+    } else {
+      assert(await verifyDeviceSignature({ ...entry, sig_alg: 'RS256' }, hash) === false, C, seed, 'ECDSA: 미지원 알고리듬이 통과했습니다');
+    }
+
+    /* ⑤ 봉인이 서명을 덮는가 + 시점인증 부착 불변식 (매 25회) */
+    if (i % 25 === 0) {
+      const note = {
+        note_id: `CS-${seed}`, header: { 작성자: 'A' }, content_sha256: hash,
+        signatures: { contributors: [], final: null }, 수정이력: [], _state: 'approved',
+      };
+      addContributorSignature(note, 'B', hash, { crypto: entry });
+      await sealNote(note, { approver: 'C', prevSealHash: '', contentHash: hash });
+      assert(await sealHashOf(note) === note.seal_hash, C, seed, '봉인 직후 sealHashOf 불일치');
+
+      const keep = note.signatures.contributors[0].crypto.sig;
+      note.signatures.contributors[0].crypto.sig = b64u(crypto.getRandomValues(new Uint8Array(64)));
+      assert(await sealHashOf(note) !== note.seal_hash, C, seed, '봉인 후 crypto.sig 바꿔치기가 체인에 잡히지 않습니다');
+      note.signatures.contributors[0].crypto.sig = keep;
+
+      const sealBefore = note.seal_hash;
+      attachTimestamp(note, { ok: true, tsa: 'https://freetsa.org/tsr', gen_time: FIXTURE_GEN,
+        serial: FIXTURE_SERIAL, imprint: FIXTURE_HASH, token_b64: tokenB64, obtained_at: FIXTURE_GEN });
+      assert(note.seal_hash === sealBefore && await sealHashOf(note) === note.seal_hash,
+        C, seed, '시점인증 부착이 봉인 해시를 건드렸습니다');
+
+      const rows = await verifyCryptoSignatures(note, { B: { device_keys: [{ pub_jwk: pubJwk }] } });
+      const rB = rows.find(r => r.signer === 'B');
+      assert(rB && rB.ok === true && rB.keyKnown === true, C, seed, '검증 요약: 정상 서명·등록 키가 확인되지 않습니다');
+      const rows2 = await verifyCryptoSignatures(note, { B: { device_keys: [{ pub_jwk: roguePub }] } });
+      const rB2 = rows2.find(r => r.signer === 'B');
+      assert(rB2 && rB2.ok === true && rB2.keyKnown === false, C, seed, '검증 요약: 키 대장 불일치(바꿔치기 신호)를 놓쳤습니다');
+
+      let t2 = false;
+      try { attachTimestamp({ _state: 'approved' }, { ok: true }); } catch { t2 = true; }
+      assert(t2, C, seed, '미확정 노트에 시점인증이 부착되었습니다');
+      let t3 = false;
+      try {
+        await sealNote({ note_id: 'x', header: { 작성자: 'A' }, content_sha256: hash,
+          signatures: { contributors: [], final: null }, 수정이력: [], _state: 'approved' },
+          { approver: 'A', prevSealHash: '', contentHash: hash });
+      } catch { t3 = true; }
+      assert(t3, C, seed, '자기 승인(작성자=승인자)이 차단되지 않았습니다');
+    }
+
+    /* ⑥ PBKDF2 (비용이 커서 표본 검사, 매 500회) */
+    if (i % 500 === 0) {
+      const a = await verifyPin(PIN, pinRec);
+      assert(a.ok === true && a.legacy === false, C, seed, 'PBKDF2: 올바른 PIN 이 거부되었습니다');
+      const b = await verifyPin(PIN + '9', pinRec);
+      assert(b.ok === false, C, seed, 'PBKDF2: 틀린 PIN 이 통과했습니다');
+      const c = await verifyPin(PIN, null, legacyHex);
+      assert(c.ok === true && c.legacy === true, C, seed, '구판 sha256 검증·legacy 신호가 틀렸습니다');
+      const d = await verifyPin(PIN + '1', null, legacyHex);
+      assert(d.ok === false, C, seed, '구판: 틀린 PIN 이 통과했습니다');
+      assert(pinRec.iters === 210000 && pinRec.kdf === 'PBKDF2-SHA256', C, seed, 'PBKDF2 파라미터가 명세와 다릅니다');
+    }
+  }
+  return n;
+}
+
+function concatU8(prefix, tail) {
+  const out = new Uint8Array(prefix.length + tail.length);
+  out.set(prefix, 0); out.set(tail, prefix.length);
+  return out;
+}
+
 const PLAN = [
   ['util_dates',           12000, catUtilDates],
   ['util_numbers',          8000, catUtilNumbers],
@@ -1768,6 +1952,7 @@ const PLAN = [
   ['autodraft_writer',      4000, catAutoDraft],
   ['i18n_dictionary',       6000, catI18n],
   ['gate_wording_langs',    5000, catWordingLangs],
+  ['crypto_sign_ts',        3000, catCryptoSignTs],
   ['sc_multiuser',         12000, catMultiUser],
   ['sc_multilang',         12000, catMultiLang],
   ['sc_revision',           8000, catRevisionChain],
