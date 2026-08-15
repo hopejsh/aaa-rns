@@ -57,8 +57,28 @@ jobs:
       - name: Version is single-sourced
         run: |
           v=$(cat VERSION)
+          fail=0
           grep -q "APP_VERSION = '$v'" js/core/version.js || {
-            echo "FATAL: VERSION ($v) disagrees with js/core/version.js"; exit 1; }
+            echo "FATAL: VERSION ($v) disagrees with js/core/version.js"; fail=1; }
+          grep -q "^version: $v\$" CITATION.cff || {
+            echo "FATAL: VERSION ($v) disagrees with CITATION.cff"; fail=1; }
+
+          # 사람이 읽는 곳에 박힌 버전도 검사한다. 랜딩 페이지의 다운로드 버튼이
+          # v2.0.0 을 가리키는 동안 그 옆 배지는 v2.0.1 을 표시하고 있었다 —
+          # 한 화면에 두 버전이 있었고, 고쳐도 다음 릴리스에서 또 어긋난다.
+          #
+          # 조각이 아니라 줄 전체로 판정한다. grep -o 로 잘라내면 "frozen to v2.0.0"
+          # 같은 문맥이 사라져 정당한 표기까지 낡은 것으로 잡힌다 — 실제로 그랬다.
+          # 버전 DOI 설명문은 그 DOI 가 고정된 판을 말하므로 예외로 둔다.
+          while IFS= read -r line; do
+            case "$line" in
+              *"frozen to"*|*"고정되어"*|*"固定されて"*|*zenodo*) continue ;;
+              *"$v"*) continue ;;
+            esac
+            echo "FATAL: 낡은 버전 표기 — $line"; fail=1
+          done < <(grep -rHnE '[Vv]ersion[ =]+\{?[0-9]+\.[0-9]+\.[0-9]+|v[0-9]+\.[0-9]+\.[0-9]+' \
+                     README.md README.ko.md README.ja.md docs/index.html docs/README.md 2>/dev/null)
+          exit $fail
 
       - name: All three READMEs present and in step
         run: |

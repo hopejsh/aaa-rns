@@ -154,14 +154,14 @@ node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 [`CITATION.cff`](CITATION.cff) 가 있어 GitHub 사이드바의 **"Cite this repository"** 버튼이
 APA·BibTeX 형식을 자동으로 만들어 줍니다.
 
-> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.0)
+> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.1)
 > [Computer software]. https://doi.org/10.5281/zenodo.21937754
 
 ```bibtex
 @software{jung_aaarns_2026,
   author    = {Jung, Seung Ho},
   title     = {{AAA-RNS: AI Agent-driven Autonomous Research Notebook System}},
-  version   = {2.0.0},
+  version   = {2.0.1},
   year      = {2026},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.21937754},

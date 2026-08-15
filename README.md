@@ -158,14 +158,14 @@ If this software contributed to work you publish, please cite it. The repository
 [`CITATION.cff`](CITATION.cff), so GitHub's **"Cite this repository"** button on the sidebar
 produces APA and BibTeX for you.
 
-> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.0)
+> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.1)
 > [Computer software]. https://doi.org/10.5281/zenodo.21937754
 
 ```bibtex
 @software{jung_aaarns_2026,
   author    = {Jung, Seung Ho},
   title     = {{AAA-RNS: AI Agent-driven Autonomous Research Notebook System}},
-  version   = {2.0.0},
+  version   = {2.0.1},
   year      = {2026},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.21937754},

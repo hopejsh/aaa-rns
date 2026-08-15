@@ -19,7 +19,7 @@ only what is needed to run the software, and you take the documents you actually
 | **Verification report**<br><sub>21 cycles · 2,446,015 simulation runs</sub> | [검증보고서](ko/verification-report.md) | [Verification report](en/verification-report.md) | [検証報告書](ja/verification-report.md) |
 | **Training deck**<br><sub>For introducing the system to a new team</sub> | [교육용 발표자료](ko/training-deck.pdf) | [Training deck](en/training-deck.pdf) | [研修用スライド](ja/training-deck.pdf) |
 
-The editable PowerPoint sources of the decks are **[attached to the v2.0.0 release](../../releases/tag/v2.0.0)**
+The editable PowerPoint sources of the decks are **[attached to each release](../../releases/latest)**
 rather than stored in the repository: GitHub cannot preview a `.pptx`, so keeping 16 MB of them in
 every clone buys nothing, and each re-export would add another full copy to the history for good.
 The PDFs above are the versions meant for reading in the browser.
@@ -59,4 +59,4 @@ external design-system bundle that is not part of this repository.
 
 ---
 
-AAA-RNS v2.0 · Developed by **Seung Ho Jung** · Apache-2.0 © 2026
+AAA-RNS · Developed by **Seung Ho Jung** · Apache-2.0 © 2026
