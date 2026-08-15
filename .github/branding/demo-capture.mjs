@@ -10,14 +10,28 @@
  * 사용: node demo-frames.mjs <port> <출력폴더> [lang]
  * ════════════════════════════════════════════════════════════════ */
 import puppeteer from 'puppeteer-core';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 import { join } from 'node:path';
 
 const PORT = process.argv[2] || '8799';
-const OUT  = process.argv[3];
+const OUT  = process.argv[3] || 'demo-frames';
 const LANG = process.argv[4] || 'en';
 const BASE = `http://localhost:${PORT}`;
-const DOCS = '/Users/seunghojung/Documents/AAA_Research_Notes_System/가상문서/가상문서_대한정밀화학_RS-2030-38354655';
+
+/* 경로는 이 스크립트의 위치에서 유도한다. 개발자의 홈 경로를 적어 두면
+   남의 기계에서 돌지 않고, CI 의 비밀·개발자경로 검사에도 걸린다 —
+   실제로 걸렸다. AAARNS_DEMO_SET 으로 다른 문서 세트를 지정할 수 있다. */
+const HERE = dirname(fileURLToPath(import.meta.url));       // <repo>/.github/branding
+const REPO = join(HERE, '..', '..');
+const SET  = process.env.AAARNS_DEMO_SET || '가상문서_대한정밀화학_RS-2030-38354655';
+const DOCS = join(REPO, '가상문서', SET);
+if (!existsSync(DOCS)) {
+  console.error(`데모 문서 세트가 없습니다: ${DOCS}`);
+  console.error('먼저 가상문서_만들기.command (또는 .bat) 로 생성하십시오.');
+  process.exit(2);
+}
 mkdirSync(OUT, { recursive: true });
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -185,7 +199,7 @@ await ev(async set => {
     dt.items.add(new File([await r.blob()], n));
   }
   document.querySelector('#ndDrop').dispatchEvent(new DragEvent('drop', { bubbles: true, dataTransfer: dt }));
-}, '가상문서_대한정밀화학_RS-2030-38354655');
+}, SET);
 await film(2400, 140);
 
 /* ⑧ 자동 집필 */
