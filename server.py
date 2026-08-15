@@ -26,6 +26,13 @@ PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8777
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
+# RFC-3161 proxy target. Fixed allowlist, not user input: a forwarding
+# endpoint that accepts arbitrary URLs is an open relay (SSRF). The browser
+# cannot call the TSA directly because public TSAs do not send CORS headers,
+# so the local server forwards the 69-byte query and returns the token.
+TSA_URL = 'https://freetsa.org/tsr'
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=ROOT, **kwargs)
@@ -33,6 +40,46 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header('Cache-Control', 'no-store')
         super().end_headers()
+
+    def do_POST(self):
+        if self.path != '/tsa':
+            self.send_error(404)
+            return
+        try:
+            import ssl
+            import urllib.request
+            n = int(self.headers.get('Content-Length', '0'))
+            body = self.rfile.read(n) if 0 < n <= 4096 else b''
+            if not body:
+                self.send_error(400, 'empty timestamp query')
+                return
+            # python.org builds on macOS ship without default CA certs
+            # (the classic "Install Certificates.command" gap), so the
+            # default context can hold zero roots. Load the OS bundle
+            # explicitly; never disable verification.
+            ctx = ssl.create_default_context()
+            if not ctx.get_ca_certs():
+                for bundle in ('/etc/ssl/cert.pem',
+                               '/etc/ssl/certs/ca-certificates.crt',
+                               '/etc/pki/tls/certs/ca-bundle.crt'):
+                    try:
+                        ctx.load_verify_locations(bundle)
+                        break
+                    except OSError:
+                        continue
+            req = urllib.request.Request(
+                TSA_URL, data=body,
+                headers={'Content-Type': 'application/timestamp-query'})
+            with urllib.request.urlopen(req, timeout=10, context=ctx) as r:
+                tsr = r.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/timestamp-reply')
+            self.send_header('Content-Length', str(len(tsr)))
+            self.end_headers()
+            self.wfile.write(tsr)
+        except Exception as e:
+            # Offline or TSA down: the app degrades to the local clock.
+            self.send_error(502, f'TSA unreachable: {e.__class__.__name__}')
 
     def log_message(self, fmt, *args):
         pass  # keep the console quiet

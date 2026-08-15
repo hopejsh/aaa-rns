@@ -18,11 +18,15 @@ import { buildBackupZip, restoreBackupZip, archiveSealedNote } from '../core/bac
 import { verifyLicenseKey } from '../core/license.js';
 import { EDITION, COMMUNITY_LICENSE, bindsToOneProject } from '../core/edition.js';
 import { APP_VERSION, BUILD_DATE, VERIFY_CYCLES, VERIFY_RUNS } from '../core/version.js';
+import { hashPin, verifyPin, ensureDeviceKey, deviceKeyInfo, signWithDeviceKey,
+         keyFingerprint, enrollPasskey, signWithPasskey } from '../core/signing.js';
+import { obtainTimestamp, verifyStoredTimestamp, DEFAULT_TSA } from '../core/timestamp.js';
 import { LLM_PROVIDERS, llmTest, polishNarrative } from '../core/llm.js';
 import { LANGS, getLang, setLang, initLang, translateDOM, t } from '../i18n/i18n.js';
 import {
   createNote, noteContentHash, commitNote, applyGateResult,
   addContributorSignature, sealNote, reviseNote, verifySealChain, verifyNoteIntegrity,
+  attachTimestamp, verifyCryptoSignatures,
 } from '../core/notes.js';
 import { LocalStore, FsStore } from '../core/store.js';
 import { docxBuild, xlsxBuild, noteToDocxBlocks, stateLabel, dt } from '../core/docgen.js';
@@ -73,28 +77,62 @@ function meUser() { return S.users.users.find(u => u.name === currentUser()) || 
 function adminUser() { return S.users.users.find(u => u.is_admin) || null; }
 function isAdmin() { const m = meUser(); return !!(m && m.is_admin); }
 
-/** PIN 재확인 (파괴적 작업 전) — sha256 해시 대조 */
+/** PIN 재확인 (파괴적 작업 전) — PBKDF2 대조.
+ *  구판(솔트 없는 sha256) 사용자는 성공한 그 자리에서 신판으로 이관한다 —
+ *  올바른 PIN 을 아는 순간이 재해시할 수 있는 유일한 순간이기 때문이다. */
 function pinConfirm(user, title = 'PIN 확인') {
   return new Promise(resolve => {
-    if (!user || !user.pin_hash) { resolve(true); return; }
+    if (!user || (!user.pin_hash && !user.pin)) { resolve(true); return; }
     const body = el('div');
     body.innerHTML = `<div class="sm mb8">${esc(user.name)} 님의 PIN 을 입력하십시오.</div>`;
     const inp = el('input', { type: 'password', placeholder: 'PIN', style: 'width:100%' });
     body.appendChild(inp);
     const ok = el('button', { class: 'btn p', html: '확인', onclick: async () => {
-      if (await sha256(inp.value.trim()) === user.pin_hash) { m2._done = true; closeModal(m2.mask); resolve(true); }
-      else toast('PIN 이 일치하지 않습니다.', 'err');
+      const v = await verifyPin(inp.value.trim(), user.pin, user.pin_hash);
+      if (!v.ok) { toast('PIN 이 일치하지 않습니다.', 'err'); return; }
+      if (v.legacy) {
+        user.pin = await hashPin(inp.value.trim());
+        delete user.pin_hash;
+        await S.store.putJSON('data/users.json', S.users);
+        await audit('user.pin_upgrade', `${user.name} · PBKDF2 이관`);
+      }
+      m2._done = true; closeModal(m2.mask); resolve(true);
     } });
     const m2 = openModal({ title, body, foot: [ok], onClose: () => { if (!m2._done) resolve(false); } });
     setTimeout(() => inp.focus(), 50);
   });
 }
 
+/** 서명 직전에 암호 서명을 모은다.
+ *  기기 키(A)는 있으면 조용히 쓰고 없으면 이름 서명으로 진행한다.
+ *  패스키(B)는 사용자가 켠 경우이므로, 취소·실패 시 서명 자체를 중단한다 —
+ *  켜 놓은 2요소가 조용히 빠지는 것은 사용자가 기대한 보안이 아니다.
+ *  반환: extras 객체, 또는 null(중단). */
+async function gatherSignatureExtras(signerName, contentHash) {
+  const extras = {};
+  try {
+    const c = await signWithDeviceKey(signerName, contentHash);
+    if (c) extras.crypto = c;
+  } catch (e) {
+    toast('기기 키 서명 실패 — 이름 서명만 기록됩니다: ' + e.message, 'warn');
+  }
+  const u = S.users.users.find(x => x.name === signerName);
+  if (u && u.passkey && u.passkey_sign) {
+    try {
+      extras.passkey = await signWithPasskey(u.passkey, contentHash);
+    } catch (e) {
+      toast('패스키 서명이 취소되어 서명을 중단했습니다.', 'err');
+      return null;
+    }
+  }
+  return extras;
+}
+
 /** 최초 시작 흐름 — 등록 안 된 사용자에게 설정 모달을 띄운다 */
 async function ensureUserSession() {
   const me = meUser();
   const admin = adminUser();
-  if (me && me.pin_hash) return;               // 등록 완료 사용자
+  if (me && (me.pin_hash || me.pin)) return;   // 등록 완료 사용자 (구판·신판 모두)
   const first = !admin;                        // 아직 관리자가 없다 = 최초 시작
 
   const body = el('div');
@@ -119,11 +157,23 @@ async function ensureUserSession() {
       if (name.length < 2) { toast('이름을 입력하십시오.', 'warn'); return; }
       if (pin.length < 4) { toast('PIN 은 4자리 이상이어야 합니다.', 'warn'); return; }
       if (pin !== pin2In.value.trim()) { toast('PIN 확인이 일치하지 않습니다.', 'warn'); return; }
-      const pin_hash = await sha256(pin);
+      const pinRec = await hashPin(pin);           // PBKDF2 — 솔트 없는 sha256 은 신규에 쓰지 않는다
       let u = S.users.users.find(x => x.name === name);
-      if (u && u.pin_hash) { toast('이미 등록된 이름입니다. 본인이면 이 이름으로 다시 접속하십시오.', 'warn'); return; }
+      if (u && (u.pin_hash || u.pin)) { toast('이미 등록된 이름입니다. 본인이면 이 이름으로 다시 접속하십시오.', 'warn'); return; }
       if (!u) { u = { name, role: first ? '책임 데이터 관리자' : '참여연구원' }; S.users.users.push(u); }
-      u.email = mail; u.pin_hash = pin_hash;
+      u.email = mail; u.pin = pinRec;
+      /* A(기본): 기기 서명 키 자동 생성 — 서명을 이름이 아니라 키에 결박한다.
+         실패해도 등록은 막지 않는다(이름 서명으로 진행). */
+      try {
+        const { pubJwk } = await ensureDeviceKey(name);
+        const fp = await keyFingerprint(pubJwk);
+        u.device_keys = u.device_keys || [];
+        if (!u.device_keys.some(k => k.fp === fp)) {
+          u.device_keys.push({ pub_jwk: pubJwk, fp, created_at: new Date().toISOString() });
+        }
+      } catch (e) {
+        toast('기기 서명 키 생성 실패 — 이름 서명만 기록됩니다: ' + e.message, 'warn');
+      }
       if (first) u.is_admin = true;
       await S.store.putJSON('data/users.json', S.users);
       localStorage.setItem('aaarns_user', name);
@@ -1348,6 +1398,32 @@ async function renderNoteDetail(c, noteId) {
     if (!integrity.ok) {
       wrap.appendChild(el('div', { class: 'badBox', html: '<b>⚠ 무결성 경고</b> — 저장된 본문 해시와 현재 내용이 일치하지 않습니다. 파일이 외부에서 수정되었을 수 있습니다.' }));
     }
+    /* 암호 서명·시점인증 상태 — 확정 노트에서 항상 보여준다.
+       '이름만' 서명도 정직하게 표시한다: 없는 보증을 있는 것처럼 만들지 않는다. */
+    {
+      const byName = Object.fromEntries(S.users.users.map(u => [u.name, u]));
+      const sigRs = await verifyCryptoSignatures(note, byName);
+      const rows = sigRs.map(r => {
+        const method = r.method === 'device-key' ? '기기 키' : r.method === 'passkey' ? '패스키' : '이름만 (암호 서명 없음)';
+        let verdict;
+        if (r.ok === null) verdict = '<span class="mut">—</span>';
+        else if (!r.ok) verdict = '<b style="color:var(--no,#9b2c2c)">서명 검증 실패</b>';
+        else if (r.keyKnown === false) verdict = '<b style="color:var(--warn,#8a5a12)">유효하나 키 대장에 없는 키</b>';
+        else verdict = '<b style="color:var(--ok,#1f7a4d)">검증됨</b>' + (r.keyKnown ? ' · 키 대장 일치' : '');
+        return `<div class="sm">${esc(r.signer)} <span class="mut">(${r.stage === 'final_approval' ? '최종 승인' : '기여자'} · ${method})</span> — ${verdict}</div>`;
+      }).join('');
+      let tsHtml;
+      if (note.rfc3161) {
+        const tv = verifyStoredTimestamp(note.rfc3161, note.seal_hash);
+        tsHtml = tv.ok
+          ? `<div class="sm">시점인증 — <b style="color:var(--ok,#1f7a4d)">${esc(tv.gen_time)}</b> <span class="mut">(${esc(note.rfc3161.tsa)}) · 구조 검증 통과 — TSA 서명은 openssl 로 독립 검증 가능</span></div>`
+          : `<div class="sm">시점인증 — <b style="color:var(--no,#9b2c2c)">토큰 검증 실패: ${esc(tv.reason)}</b></div>`;
+      } else {
+        tsHtml = `<div class="sm mut">시점인증 — 없음 (로컬 시계 기록)</div>`;
+      }
+      wrap.appendChild(el('div', { class: 'card', html:
+        `<div class="cardH"><div class="cardT">서명 · 시점인증 검증</div></div>${rows}${tsHtml}` }));
+    }
     wrap.appendChild(el('div', { class: 'mt12', html: renderNoteDocHtml(note) }));
     return;
   }
@@ -1963,7 +2039,9 @@ function signPanel(note) {
       const nm = meIn.value.trim();
       if (!nm) { toast('서명자 이름을 입력하십시오.', 'warn'); return; }
       try {
-        addContributorSignature(note, nm, note.content_sha256);
+        const extras = await gatherSignatureExtras(nm, note.content_sha256);
+        if (extras === null) return;                       // 패스키 취소 → 중단
+        addContributorSignature(note, nm, note.content_sha256, extras);
         await saveNote(note);
         await audit('note.sign', `${note.note_id} · ${nm}`);
         toast('기여자 서명이 기록되었습니다.', 'ok');
@@ -1978,13 +2056,28 @@ function signPanel(note) {
       if (!nm) { toast('승인자 이름을 입력하십시오.', 'warn'); return; }
       if (!await confirmModal('최종 승인', `'${nm}' 이름으로 최종 승인하고 확정(sealed)합니다. 확정 후에는 수정할 수 없으며, 변경은 개정판 발행으로만 가능합니다.`)) return;
       try {
+        const finalExtras = await gatherSignatureExtras(nm, note.content_sha256);
+        if (finalExtras === null) return;                  // 패스키 취소 → 중단
         const sealedAll = await sealedNotesList();
         const chainSorted = sealedAll.filter(n => n.seal_hash).sort((a, b) => a.note_id < b.note_id ? -1 : 1);
         const prev = chainSorted.length ? chainSorted[chainSorted.length - 1].seal_hash : '';
         await sealNote(note, {
           approver: nm, prevSealHash: prev, contentHash: note.content_sha256,
           allowAdvisory: S.config.gates.mode_default !== 'strict',
+          finalExtras,
         });
+        /* 시점인증 — 켜져 있을 때만, 봉인 해시(32바이트)만 전송.
+           실패는 확정을 절대 막지 않는다: 감사로그에 사유를 남기고
+           로컬 시계 기록으로 진행한다 (에어갭 동작 보장). */
+        if (S.config.timestamp && S.config.timestamp.enabled) {
+          const tsRec = await obtainTimestamp(note.seal_hash, S.config.timestamp.tsa_url || DEFAULT_TSA);
+          if (tsRec.ok) {
+            attachTimestamp(note, tsRec);
+            await audit('note.timestamp', `${note.note_id} · ${tsRec.gen_time} · ${tsRec.tsa}`);
+          } else {
+            await audit('note.timestamp.fail', `${note.note_id} · ${tsRec.reason} — 로컬 시계로 기록`);
+          }
+        }
         // A8: 측정값을 지표 실측에 누적
         for (const r of note.sections.metrics || []) {
           if (r.metric_key && Number.isFinite(+r.value)) {
@@ -2000,7 +2093,9 @@ function signPanel(note) {
         /* 확정 즉시 영구 아카이브 (원본 JSON + 정본 DOCX) */
         const arc = await archiveSealedNote(S.store, note, S.ledger);
         if (arc.json || arc.docx) await audit('archive.seal', `${note.note_id} → ${arc.base} (json:${arc.json} docx:${arc.docx})`);
-        toast('연구노트가 확정되었습니다.' + (arc.json ? ' 아카이브에 보관되었습니다.' : ''), 'ok');
+        toast('연구노트가 확정되었습니다.'
+          + (note.rfc3161 ? ' 시점인증 토큰이 부착되었습니다.' : '')
+          + (arc.json ? ' 아카이브에 보관되었습니다.' : ''), 'ok');
         nav('noteDetail', note.note_id);
       } catch (e) { toast(e.message, 'err'); }
     },
@@ -2610,6 +2705,99 @@ function renderSettings(c) {
     `확정 노트는 SHA-256 해시 체인으로 연결되어 사후 변조가 탐지되며, 아카이브는 앱이 다시 쓰지 않는 일방향 보관본입니다. ` +
     `백업은 <b>언제든</b> [전체 백업 (.zip)] 으로 받을 수 있고, 마지막 백업 후 30일이 지나면 월 1회 알림으로 안내합니다.` }));
   wrap.appendChild(data);
+
+  /* 서명 · 시점인증 */
+  const sig = el('div', { class: 'card' });
+  sig.innerHTML = `<div class="cardH"><div class="cardT">서명 · 시점인증</div></div>
+    <div class="cardSub">기기 키(기본)와 패스키(선택)로 서명을 키에 결박하고, 확정 시각을 공인 TSA 에 고정합니다</div>`;
+  const me2 = meUser();
+  const sigBody = el('div');
+  sig.appendChild(sigBody);
+  (async () => {
+    /* A. 기기 키 — 이 브라우저 프로필의 서명 키 */
+    const dk = me2 ? await deviceKeyInfo(me2.name) : null;
+    const dkRow = el('div', { class: 'kv' });
+    if (dk) {
+      const fp = await keyFingerprint(dk.pubJwk);
+      dkRow.innerHTML = `<div class="k">기기 키</div>
+        <div class="v">생성됨 · 키 지문 <span class="mono">${esc(fp)}</span>
+        <div class="sm mut">개인키는 이 브라우저 프로필 밖으로 나갈 수 없습니다(추출 불가). 다른 기기에서는 그 기기의 키가 새로 만들어집니다.</div></div>`;
+    } else {
+      dkRow.innerHTML = `<div class="k">기기 키</div><div class="v">없음</div>`;
+      const mk = el('button', { class: 'btn sm', html: '기기 키 만들기', onclick: async () => {
+        try {
+          const { pubJwk } = await ensureDeviceKey(me2.name);
+          const fp = await keyFingerprint(pubJwk);
+          me2.device_keys = me2.device_keys || [];
+          if (!me2.device_keys.some(k => k.fp === fp)) me2.device_keys.push({ pub_jwk: pubJwk, fp, created_at: new Date().toISOString() });
+          await S.store.putJSON('data/users.json', S.users);
+          await audit('user.device_key', `${me2.name} · ${fp}`);
+          toast('기기 키가 생성되었습니다. 이후 서명에 자동 사용됩니다.', 'ok');
+          nav('settings');
+        } catch (e) { toast('기기 키 생성 실패: ' + e.message, 'err'); }
+      } });
+      dkRow.querySelector('.v').appendChild(mk);
+    }
+    sigBody.appendChild(dkRow);
+
+    /* B. 패스키 — 생체/기기 PIN 이 개입하는 2요소 서명 */
+    const pkRow = el('div', { class: 'kv' });
+    if (me2 && me2.passkey) {
+      pkRow.innerHTML = `<div class="k">패스키</div>
+        <div class="v">등록됨 (${esc((me2.passkey.enrolled_at || '').slice(0, 10))})</div>`;
+      const tgl = el('label', { class: 'sm', style: 'display:block;margin-top:6px' });
+      const cb = el('input', { type: 'checkbox' });
+      cb.checked = !!me2.passkey_sign;
+      cb.onchange = async () => {
+        me2.passkey_sign = cb.checked;
+        await S.store.putJSON('data/users.json', S.users);
+        toast(cb.checked ? '서명 시 패스키를 요구합니다.' : '패스키 요구를 껐습니다.', 'ok');
+      };
+      tgl.append(cb, ' 서명할 때마다 패스키(생체/기기 PIN) 확인을 요구');
+      pkRow.querySelector('.v').appendChild(tgl);
+    } else {
+      pkRow.innerHTML = `<div class="k">패스키</div><div class="v">미등록 <span class="sm mut">— Touch ID 등 플랫폼 인증기가 서명마다 개입합니다 (선택)</span></div>`;
+      if (me2) {
+        const en = el('button', { class: 'btn sm', html: '패스키 등록', onclick: async () => {
+          try {
+            me2.passkey = await enrollPasskey(me2.name);
+            me2.passkey_sign = true;
+            await S.store.putJSON('data/users.json', S.users);
+            await audit('user.passkey', me2.name);
+            toast('패스키가 등록되었습니다. 서명 시 확인을 요구합니다.', 'ok');
+            nav('settings');
+          } catch (e) { toast('패스키 등록 실패 또는 취소: ' + e.message, 'err'); }
+        } });
+        pkRow.querySelector('.v').appendChild(en);
+      }
+    }
+    sigBody.appendChild(pkRow);
+
+    /* C. 시점인증 — 설치본 전체 정책이므로 책임 데이터 관리자만 변경 */
+    const tsOn = !!(S.config.timestamp && S.config.timestamp.enabled);
+    const tsRow = el('div', { class: 'kv' });
+    tsRow.innerHTML = `<div class="k">시점인증 (RFC-3161)</div><div class="v"></div>`;
+    const tsV = tsRow.querySelector('.v');
+    const tsl = el('label', { class: 'sm', style: 'display:block' });
+    const tcb = el('input', { type: 'checkbox' });
+    tcb.checked = tsOn;
+    tcb.disabled = !isAdmin();
+    tcb.onchange = async () => {
+      S.config.timestamp = { enabled: tcb.checked, tsa_url: (S.config.timestamp && S.config.timestamp.tsa_url) || DEFAULT_TSA };
+      await S.store.putJSON('data/config.json', S.config);
+      await audit('config.timestamp', tcb.checked ? `켬 · ${S.config.timestamp.tsa_url}` : '끔');
+      toast(tcb.checked ? '시점인증을 켰습니다. 확정 시 봉인 해시만 TSA 로 전송됩니다.' : '시점인증을 껐습니다.', 'ok');
+    };
+    tsl.append(tcb, ` 확정 시 공인 TSA 의 시점인증 토큰을 받아 노트에 부착 (기본 꺼짐)`);
+    tsV.appendChild(tsl);
+    tsV.appendChild(el('div', { class: 'sm mut', style: 'margin-top:6px', html:
+      `TSA: <span class="mono">${esc((S.config.timestamp && S.config.timestamp.tsa_url) || DEFAULT_TSA)}</span><br>` +
+      '전송되는 것은 봉인 해시 32바이트뿐입니다 — 본문·제목·이름은 나가지 않습니다. ' +
+      '오프라인이면 로컬 시계로 조용히 강등되며, 확정을 막지 않습니다.' +
+      (isAdmin() ? '' : '<br>변경은 책임 데이터 관리자만 할 수 있습니다.') }));
+    sigBody.appendChild(tsRow);
+  })();
+  wrap.appendChild(sig);
 
   /* 제품 정보 */
   const about = el('div', { class: 'card' });

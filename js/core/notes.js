@@ -135,14 +135,20 @@ export function applyGateResult(note, gateResult) {
  * ══════════════════════════════════════════════════════════ */
 
 /** 기여자 서명 추가. 확정 노트에는 불가. */
-export function addContributorSignature(note, signer, contentHash) {
+export function addContributorSignature(note, signer, contentHash, extras) {
   if (note._state === 'sealed') throw new Error('확정된 노트에는 서명을 추가할 수 없습니다.');
   if (contentHash !== note.content_sha256) throw new Error('서명 대상 해시가 현재 본문과 다릅니다.');
   if (note.signatures.contributors.some(s => s.signer === signer)) return note; // 멱등
-  note.signatures.contributors.push({
+  const entry = {
     signer, stage: 'contributor', content_sha256: contentHash,
     signed_at: new Date().toISOString(),
-  });
+  };
+  /* 암호 서명(기기 키 crypto / 패스키 passkey)이 있으면 서명 항목에 싣는다.
+     v2 봉인 다이제스트가 signatures 전체를 덮으므로, 여기 실린 것은
+     확정 후 바꿔치기가 곧 체인 파손이 된다 — 별도 판 승급이 필요 없다. */
+  if (extras && extras.crypto) entry.crypto = extras.crypto;
+  if (extras && extras.passkey) entry.passkey = extras.passkey;
+  note.signatures.contributors.push(entry);
   return note;
 }
 
@@ -166,6 +172,8 @@ export async function sealNote(note, o) {
     signer: approver, stage: 'final_approval', content_sha256: contentHash,
     signed_at: new Date().toISOString(),
   };
+  if (o.finalExtras && o.finalExtras.crypto) note.signatures.final.crypto = o.finalExtras.crypto;
+  if (o.finalExtras && o.finalExtras.passkey) note.signatures.final.passkey = o.finalExtras.passkey;
   /* 확정 해시는 본문뿐 아니라 '누가 서명했는가'까지 덮는다.
      서명자 이름이 봉인 밖에 있으면 확정 후 승인자를 바꿔치기해도
      탐지되지 않는다 — 감사 대응 시스템에서 치명적인 공백이다.
@@ -178,6 +186,57 @@ export async function sealNote(note, o) {
   note._state = 'sealed';
   note.수정이력.push({ at: new Date().toISOString(), by: approver, what: '최종 승인·확정(sealed)' });
   return note;
+}
+
+/* ══════════════════════════════════════════════════════════
+ * 시점인증 토큰 부착 — 확정 '이후'에만 가능하다
+ *
+ * 토큰은 seal_hash 를 대상으로 발급되므로 봉인 안에 넣을 수 없다
+ * (자기 자신을 포함하는 해시가 된다). 대신 토큰 자체가 TSA 의
+ * 서명으로 자기 증명한다: 지우면 시각 증거만 사라질 뿐 위조는
+ * 안 되고, 바꿔치면 imprint 가 봉인 해시와 어긋난다.
+ * ══════════════════════════════════════════════════════════ */
+export function attachTimestamp(note, rec) {
+  if (note._state !== 'sealed') throw new Error('확정된 노트에만 시점인증을 부착할 수 있습니다.');
+  if (!rec || !rec.ok) throw new Error('유효한 시점인증 결과가 아닙니다.');
+  note.rfc3161 = {
+    tsa: rec.tsa, gen_time: rec.gen_time, serial: rec.serial,
+    imprint: rec.imprint, token_b64: rec.token_b64, obtained_at: rec.obtained_at,
+  };
+  return note;
+}
+
+/**
+ * 암호 서명 일괄 검증 — 기여자·최종 서명의 crypto/passkey 를 전부 대조한다.
+ * usersByName 이 주어지면 서명에 실린 공개키가 사용자 기록의 공개키와
+ * 일치하는지도 본다(키 바꿔치기 탐지). 반환: 항목별 판정 배열.
+ */
+export async function verifyCryptoSignatures(note, usersByName) {
+  const { verifyDeviceSignature, verifyWebAuthnAssertion } = await import('./signing.js');
+  const out = [];
+  const all = [...(note.signatures?.contributors || [])];
+  if (note.signatures?.final) all.push(note.signatures.final);
+  for (const sig of all) {
+    const user = usersByName ? usersByName[sig.signer] : null;
+    if (sig.crypto) {
+      const mathOk = await verifyDeviceSignature(sig.crypto, sig.content_sha256);
+      let keyKnown = null;   // null = 대조할 기록 없음(정보), true/false = 대조 결과
+      if (user && Array.isArray(user.device_keys)) {
+        keyKnown = user.device_keys.some(k =>
+          k.pub_jwk && k.pub_jwk.x === sig.crypto.pub_jwk.x && k.pub_jwk.y === sig.crypto.pub_jwk.y);
+      }
+      out.push({ signer: sig.signer, stage: sig.stage, method: 'device-key', ok: mathOk, keyKnown });
+    }
+    if (sig.passkey) {
+      const pub = user && user.passkey ? user.passkey.pub_jwk : null;
+      const ok = pub ? await verifyWebAuthnAssertion(sig.passkey, sig.content_sha256, pub) : false;
+      out.push({ signer: sig.signer, stage: sig.stage, method: 'passkey', ok, keyKnown: !!pub });
+    }
+    if (!sig.crypto && !sig.passkey) {
+      out.push({ signer: sig.signer, stage: sig.stage, method: 'name-only', ok: null, keyKnown: null });
+    }
+  }
+  return out;
 }
 
 /* ══════════════════════════════════════════════════════════

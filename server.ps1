@@ -82,6 +82,40 @@ while ($listener.IsListening) {
     $rel = [System.Uri]::UnescapeDataString($ctx.Request.Url.AbsolutePath)
     if ($rel -eq '/') { $rel = '/index.html' }
 
+    # RFC-3161 proxy. Public TSAs send no CORS headers, so the page cannot
+    # call them directly; the local server forwards the tiny query instead.
+    # Fixed target only - a URL taken from the request would be an open relay.
+    if ($rel -eq '/tsa' -and $ctx.Request.HttpMethod -eq 'POST') {
+      try {
+        $ms = New-Object System.IO.MemoryStream
+        $ctx.Request.InputStream.CopyTo($ms)
+        $tsq = $ms.ToArray()
+        if ($tsq.Length -gt 0 -and $tsq.Length -le 4096) {
+          $web = [System.Net.WebRequest]::Create('https://freetsa.org/tsr')
+          $web.Method = 'POST'
+          $web.ContentType = 'application/timestamp-query'
+          $web.Timeout = 10000
+          $reqStream = $web.GetRequestStream()
+          $reqStream.Write($tsq, 0, $tsq.Length); $reqStream.Close()
+          $resp = $web.GetResponse()
+          $rs = $resp.GetResponseStream()
+          $out = New-Object System.IO.MemoryStream
+          $rs.CopyTo($out)
+          $tsr = $out.ToArray()
+          $ctx.Response.ContentType = 'application/timestamp-reply'
+          $ctx.Response.ContentLength64 = $tsr.Length
+          $ctx.Response.OutputStream.Write($tsr, 0, $tsr.Length)
+        } else {
+          $ctx.Response.StatusCode = 400
+        }
+      } catch {
+        # Offline or TSA down: the app degrades to the local clock.
+        $ctx.Response.StatusCode = 502
+      }
+      $ctx.Response.Close()
+      continue
+    }
+
     # Block path traversal above the program folder.
     $target = Join-Path $root ($rel.TrimStart('/') -replace '/','\')
     $full = [System.IO.Path]::GetFullPath($target)
