@@ -84,10 +84,17 @@ npm install もビルド段階もありません。CSP が外部送信そのも�
 
 - **LIMS ではありません。** 試料・在庫管理、装置連携、リアルタイム共同編集、モバイルアプリは
   ありません。
-- **利用者の識別はローカルの PIN** であり、証明書ベースの認証ではありません。実際のアクセス
-  統制は共有フォルダの OS 権限で行ってください。
-- **時刻は端末の時計**であり、認定タイムスタンプ局のものではありません。
-- **したがって、証明書ベースの電子署名や認定タイムスタンプを要求するいかなる制度も
+- **本人性は自己申告です。** 署名には端末キー（ECDSA P-256・抽出不可）が載り、任意で
+  パスキー（WebAuthn — Touch ID 等）を加えられます。どちらも封印ハッシュに閉じ込められる
+  ため、確定後に署名者をすり替えればチェーンの破損として現れます。ただし、その鍵が
+  *その人* のものだという保証は、認証局なしには成立しません。PIN は PBKDF2-SHA256
+  （210,000 回・ソルト付き）で保存されますが、アクセス統制ではありません — 実際の統制は
+  共有フォルダの OS 権限で行ってください。
+- **時刻は既定では端末の時計です。** 設定で RFC-3161 タイムスタンプを有効にすると、確定時に
+  封印ハッシュ（32 バイトのハッシュのみ — 本文・ファイルは送りません）を TSA に送り、署名
+  済みトークンを添付します。既定はオフで、オフラインの場合は端末時計のみで記録します。
+  既定の TSA（FreeTSA）は認定タイムスタンプ局ではありません。
+- **証明書ベースの電子署名や認定タイムスタンプを要求する制度は、上記の補強をもってしても
   満たせません** — 一つの技術的事実が国ごとに別の名前で呼ばれているだけです:
   **ER/ES 指針**（日本・厚生労働省）、**21 CFR Part 11**（米国 FDA）、**eIDAS の適格電子署名・
   適格タイムスタンプ**と **EU GMP Annex 11**（EU）、そして**国家研究開発事業 研究ノート指針が
@@ -95,8 +102,10 @@ npm install もビルド段階もありません。CSP が外部送信そのも�
   再現性のためのツールです。条項ごとの詳細と、何が検証可能で何がそうでないかは
   [コンプライアンス・マトリクス](https://hopejsh.github.io/aaa-rns/compliance.html)、
   脅威モデルは [SECURITY.md](SECURITY.md) を参照してください。
-- ハッシュチェーンが証明するのは**内部整合性**です。チェーンの先端が記録保有者の管理外に
-  固定されるまでは、改ざん**検出可能（tamper-evident）**であって改ざん不可能ではありません。
+- ハッシュチェーンが証明するのは**内部整合性**です。既定では改ざん**検出可能
+  （tamper-evident）**であって改ざん不可能ではありません。RFC-3161 を有効にすると、確定時刻と
+  封印ハッシュが記録保有者の管理外（TSA の署名の下）に固定されます — 過去の記録には遡及
+  しません。
 
 潤沢な資金があり、クラウドに抵抗がなく、配列・化学の深いツールが必要な研究室であれば
 Benchling や Revvity の方が適しています。本製品は、それらが届かない研究室のためのものです。
@@ -156,14 +165,14 @@ Issue と Pull Request を歓迎します — [CONTRIBUTING.md](CONTRIBUTING.md)
 [`CITATION.cff`](CITATION.cff) があるため、GitHub サイドバーの **「Cite this repository」**
 ボタンが APA・BibTeX 形式を自動生成します。
 
-> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.1)
+> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.1.0)
 > [Computer software]. https://doi.org/10.5281/zenodo.21937754
 
 ```bibtex
 @software{jung_aaarns_2026,
   author    = {Jung, Seung Ho},
   title     = {{AAA-RNS: AI Agent-driven Autonomous Research Notebook System}},
-  version   = {2.0.1},
+  version   = {2.1.0},
   year      = {2026},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.21937754},

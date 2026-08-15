@@ -86,10 +86,17 @@ Stated here rather than discovered later:
 
 - **This is not a LIMS.** No sample or inventory management, no instrument integrations, no
   real-time co-editing, no mobile app.
-- **User identity is a locally-set PIN**, not certificate-based authentication. Real access
+- **Identity is self-asserted.** Signatures carry a per-user device key (ECDSA P-256,
+  non-extractable) and optionally a passkey (WebAuthn — Touch ID and the like); both are locked
+  under the seal hash, so swapping a signer after sealing breaks the chain. But no certificate
+  authority vouches that the key belongs to *that person*. The PIN is stored with
+  PBKDF2-SHA256 (210,000 iterations, salted) and is still not access control — real access
   control comes from the OS permissions on your shared folder.
-- **Timestamps come from the machine's clock**, not an accredited timestamping authority.
-- **It therefore cannot meet any regime that requires a certificate-based electronic signature
+- **Timestamps default to the machine's clock.** An admin can enable RFC-3161 timestamping in
+  Settings: on sealing, the seal hash (32 hash bytes only — never content or files) is sent to
+  a TSA and the signed token is attached. Off by default; when offline it silently falls back
+  to the local clock. The default TSA (FreeTSA) is not an accredited authority.
+- **It still cannot meet any regime that requires a certificate-based electronic signature
   or an accredited timestamp** — one technical fact that carries a different name in each
   jurisdiction: **not 21 CFR Part 11-capable** (US FDA); **not a qualified signature or
   timestamp under eIDAS**, and not compliant with **EU GMP Annex 11** (EU); not compliant with
@@ -98,8 +105,9 @@ Stated here rather than discovered later:
   and reproducibility tool, not a regulated-record system. The clause-by-clause position, including
   what is and is not verifiable, is in the [compliance matrix](https://hopejsh.github.io/aaa-rns/compliance.html);
   the threat model is in [SECURITY.md](SECURITY.md).
-- The hash chain proves **internal consistency**. It is tamper-*evident*, not tamper-proof, until
-  the chain head is anchored outside the control of whoever holds the records.
+- The hash chain proves **internal consistency**. By default it is tamper-*evident*, not
+  tamper-proof. With RFC-3161 enabled, each sealed note's hash and time are anchored outside
+  the record-holder's control (under the TSA's signature) — but never retroactively.
 
 If your lab is well funded, cloud-comfortable and needs deep sequence or chemistry tooling,
 Benchling or Revvity will serve you better. This is for the labs those products cannot reach.
@@ -158,14 +166,14 @@ If this software contributed to work you publish, please cite it. The repository
 [`CITATION.cff`](CITATION.cff), so GitHub's **"Cite this repository"** button on the sidebar
 produces APA and BibTeX for you.
 
-> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.1)
+> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.1.0)
 > [Computer software]. https://doi.org/10.5281/zenodo.21937754
 
 ```bibtex
 @software{jung_aaarns_2026,
   author    = {Jung, Seung Ho},
   title     = {{AAA-RNS: AI Agent-driven Autonomous Research Notebook System}},
-  version   = {2.0.1},
+  version   = {2.1.0},
   year      = {2026},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.21937754},

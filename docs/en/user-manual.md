@@ -159,6 +159,24 @@ only editing the text afterwards but also **swapping an approver's name** is exp
 immediately by Settings → Verify hash chain. At the moment of sealing, the original JSON and
 the official DOCX are archived automatically under `archive/<year>/`.
 
+**Cryptographic signatures (v2.1)** — every signature automatically carries a **device-key**
+signature (ECDSA P-256). The private key is generated non-extractable inside the browser
+(IndexedDB) and never leaves the machine; only the public key is published in the user record
+for the team to check against. In Settings → **Signing · Timestamping** you can additionally
+enroll a **passkey** (Touch ID, Windows Hello, …) to require a presence check at the moment of
+signing. Both are locked under the seal hash, so swapping them after sealing breaks the chain,
+and a signature made with a key that is not in the key registry is flagged in the verification
+panel. Clearing browser storage destroys the device key — existing signatures remain
+verifiable, and a new key is enrolled on the next signature.
+
+**Timestamping (RFC-3161, optional)** — when an administrator enables it in Settings →
+Signing · Timestamping, sealing sends **only the 32-byte seal hash** (never content or files)
+to a timestamping authority (TSA) and attaches the signed time token to the note. **Off by
+default**; when offline, the note seals with the local clock and is never blocked. The
+"Signature · timestamp verification" panel on a sealed note checks the token's structure, hash
+match and issue time, and shows the command for full cryptographic verification
+(`openssl ts -verify`). The default TSA (FreeTSA) is not an accredited authority.
+
 ## 10. Connecting an AI engine (optional)
 
 The system works completely without an LLM. Connecting one makes the auto-written prose
@@ -200,10 +218,15 @@ the dashboard reminds you once a month (this can be switched off in Settings).
 **Security design**
 
 1. **Fully offline** — CSP `connect-src 'self'` blocks outbound transmission itself
-   (only the three AI endpoints are excepted, and only when an AI engine is connected).
+   (only the three AI endpoints are excepted, and only when an AI engine is connected; with
+   timestamping enabled, the local server relays only the 32-byte seal hash to the TSA —
+   content never leaves the machine in any case).
 2. **Local server only** — bound to `localhost`; never exposed externally.
 3. **Tamper detection** — SHA-256 for uploaded originals; a content+signature hash chain for sealed notes.
 4. **Audit trail** — gate verdicts, signatures, sealing, backup, restore, and role transfers are recorded append-only.
+5. **PIN storage** — PBKDF2-SHA256 (210,000 iterations, per-user salt). Hashes from before
+   v2.1 are upgraded in place on the next successful entry. The PIN is still not access
+   control — real access control is the OS permissions on your shared folder.
 
 ## 13. Testing with synthetic documents
 

@@ -141,7 +141,24 @@ G3의 달성 표기 검사는 구조화된 필드뿐 아니라 **측정조건에
 **봉인 방식** — 확정 시 노트 해시가 **본문과 서명을 함께 덮어** 직전 확정 노트의
 해시와 사슬로 연결됩니다(\`seal_algo: v2\`). 따라서 확정 후에 본문을 고치는 것은
 물론 **승인자 이름을 바꿔치기해도** 설정 → 해시 체인 검증에서 즉시 드러납니다.
-확정과 동시에 원본 JSON과 정본 DOCX가 \`archive/<연도>/\` 에 자동 보관됩니다.`,
+확정과 동시에 원본 JSON과 정본 DOCX가 \`archive/<연도>/\` 에 자동 보관됩니다.
+
+**암호 서명 (v2.1)** — 모든 서명에는 **기기 키**(ECDSA P-256) 서명이 자동으로
+함께 실립니다. 개인키는 브라우저 안(IndexedDB)에 추출 불가로 생성되어 기기를
+떠나지 않으며, 공개키만 사용자 기록에 실려 팀이 대조합니다. 설정 → **서명 ·
+시점인증**에서 **패스키**(Touch ID·Windows Hello 등)를 등록하면 서명 순간
+본인 확인 절차를 추가할 수 있습니다. 두 서명 모두 봉인 해시에 함께 잠기므로
+확정 후 바꿔치기는 체인 파손으로 드러나고, 키 대장에 없는 키로 만든 서명은
+검증 패널에 표시됩니다. 브라우저 저장소를 지우면 기기 키도 사라집니다 —
+기존 서명의 검증은 계속 가능하고, 다음 서명 때 새 키가 등록됩니다.
+
+**시점인증 (RFC-3161 · 선택)** — 설정 → 서명 · 시점인증에서 관리자가 켜면,
+확정 순간 **봉인 해시 32바이트만**(본문·파일이 아님) 시점인증 기관(TSA)으로
+보내 서명된 시각 토큰을 받아 노트에 붙입니다. **기본은 꺼짐**이고, 오프라인이면
+기기 시계로만 기록하며 확정을 막지 않습니다. 확정 노트의 「서명 · 시점인증 검증」
+패널이 토큰의 구조·해시 일치·발급 시각을 확인하고, 완전한 암호학적 검증 명령
+(\`openssl ts -verify\`)을 안내합니다. 기본 TSA(FreeTSA)는 공인 시점인증
+기관이 아닙니다.`,
     llm: `시스템은 LLM 없이 완전히 동작합니다. 연결하면 자동 초안의 서술이 더
 자연스러워집니다.
 
@@ -175,10 +192,14 @@ G3의 달성 표기 검사는 구조화된 필드뿐 아니라 **측정조건에
 **보안 설계**
 
 1. **완전 오프라인** — CSP \`connect-src 'self'\` 로 외부 전송 자체를 차단
-   (AI 엔진 연결 시 해당 3사 엔드포인트만 예외).
+   (AI 엔진 연결 시 해당 3사 엔드포인트만 예외. 시점인증을 켠 경우에는 로컬
+   서버가 봉인 해시 32바이트만 TSA 로 중계 — 본문은 어떤 경우에도 나가지 않음).
 2. **로컬 서버 전용** — \`localhost\` 에만 바인딩, 외부 공개 아님.
 3. **변조 탐지** — 업로드 원본은 SHA-256, 확정 노트는 본문+서명 해시 체인.
-4. **감사추적** — 게이트 판정·서명·확정·백업·복원·권한 양도가 append-only 기록.`,
+4. **감사추적** — 게이트 판정·서명·확정·백업·복원·권한 양도가 append-only 기록.
+5. **PIN 저장** — PBKDF2-SHA256(210,000회·사용자별 솔트). 구판(v2.1 이전)
+   해시는 다음 정상 입력 때 자동 승격됩니다. 다만 PIN 은 접근 통제가 아닙니다 —
+   실제 접근 통제는 공유폴더의 OS 권한입니다.`,
     testing: `실제 문서 없이 시스템을 시험하는 방법:
 
 1. **샘플 문서** — \`sample_docs/\` 의 샘플 계획서·지표를 온보딩에 업로드.
@@ -339,7 +360,25 @@ written in free text** in the measurement condition (Korean, English, Japanese).
 together** and is chained to the hash of the previous sealed note (\`seal_algo: v2\`). So not
 only editing the text afterwards but also **swapping an approver's name** is exposed
 immediately by Settings → Verify hash chain. At the moment of sealing, the original JSON and
-the official DOCX are archived automatically under \`archive/<year>/\`.`,
+the official DOCX are archived automatically under \`archive/<year>/\`.
+
+**Cryptographic signatures (v2.1)** — every signature automatically carries a **device-key**
+signature (ECDSA P-256). The private key is generated non-extractable inside the browser
+(IndexedDB) and never leaves the machine; only the public key is published in the user record
+for the team to check against. In Settings → **Signing · Timestamping** you can additionally
+enroll a **passkey** (Touch ID, Windows Hello, …) to require a presence check at the moment of
+signing. Both are locked under the seal hash, so swapping them after sealing breaks the chain,
+and a signature made with a key that is not in the key registry is flagged in the verification
+panel. Clearing browser storage destroys the device key — existing signatures remain
+verifiable, and a new key is enrolled on the next signature.
+
+**Timestamping (RFC-3161, optional)** — when an administrator enables it in Settings →
+Signing · Timestamping, sealing sends **only the 32-byte seal hash** (never content or files)
+to a timestamping authority (TSA) and attaches the signed time token to the note. **Off by
+default**; when offline, the note seals with the local clock and is never blocked. The
+"Signature · timestamp verification" panel on a sealed note checks the token's structure, hash
+match and issue time, and shows the command for full cryptographic verification
+(\`openssl ts -verify\`). The default TSA (FreeTSA) is not an accredited authority.`,
     llm: `The system works completely without an LLM. Connecting one makes the auto-written prose
 read more naturally.
 
@@ -373,10 +412,15 @@ the dashboard reminds you once a month (this can be switched off in Settings).
 **Security design**
 
 1. **Fully offline** — CSP \`connect-src 'self'\` blocks outbound transmission itself
-   (only the three AI endpoints are excepted, and only when an AI engine is connected).
+   (only the three AI endpoints are excepted, and only when an AI engine is connected; with
+   timestamping enabled, the local server relays only the 32-byte seal hash to the TSA —
+   content never leaves the machine in any case).
 2. **Local server only** — bound to \`localhost\`; never exposed externally.
 3. **Tamper detection** — SHA-256 for uploaded originals; a content+signature hash chain for sealed notes.
-4. **Audit trail** — gate verdicts, signatures, sealing, backup, restore, and role transfers are recorded append-only.`,
+4. **Audit trail** — gate verdicts, signatures, sealing, backup, restore, and role transfers are recorded append-only.
+5. **PIN storage** — PBKDF2-SHA256 (210,000 iterations, per-user salt). Hashes from before
+   v2.1 are upgraded in place on the next successful entry. The PIN is still not access
+   control — real access control is the OS permissions on your shared folder.`,
     testing: `Ways to exercise the system without real documents:
 
 1. **Sample documents** — upload the sample plan and metrics table in \`sample_docs/\` during onboarding.
@@ -527,7 +571,24 @@ G3 の達成表記の検査は、構造化された項目だけでなく、測�
 **封印の仕組み** — 確定時、ノートのハッシュは**本文と署名の両方を覆い**、直前の確定
 ノートのハッシュと鎖状に連結されます（\`seal_algo: v2\`）。したがって確定後に本文を
 直すことはもちろん、**承認者名をすり替えても**、設定 → ハッシュチェーン検証で直ちに
-明らかになります。確定と同時に、原本 JSON と正本 DOCX が \`archive/<年>/\` に自動保管されます。`,
+明らかになります。確定と同時に、原本 JSON と正本 DOCX が \`archive/<年>/\` に自動保管されます。
+
+**暗号署名（v2.1）** — すべての署名には**端末キー**（ECDSA P-256）の署名が自動的に
+付きます。秘密鍵はブラウザ内（IndexedDB）に抽出不可として生成され、端末を離れません。
+公開鍵のみが利用者記録に載り、チームが照合します。設定 → **署名・タイムスタンプ**で
+**パスキー**（Touch ID・Windows Hello など）を登録すると、署名の瞬間に本人確認を追加
+できます。どちらも封印ハッシュに閉じ込められるため、確定後のすり替えはチェーンの破損
+として現れ、鍵台帳にない鍵による署名は検証パネルに表示されます。ブラウザの保存領域を
+消去すると端末キーも消えます — 既存署名の検証は引き続き可能で、次の署名時に新しい鍵が
+登録されます。
+
+**タイムスタンプ（RFC-3161・任意）** — 設定 → 署名・タイムスタンプで管理者が有効に
+すると、確定の瞬間に**封印ハッシュ 32 バイトのみ**（本文・ファイルではありません）を
+タイムスタンプ局（TSA）に送り、署名済みの時刻トークンを受け取ってノートに添付します。
+**既定はオフ**で、オフライン時は端末時計のみで記録し、確定を妨げません。確定ノートの
+「署名・タイムスタンプ検証」パネルがトークンの構造・ハッシュ一致・発行時刻を確認し、
+完全な暗号学的検証コマンド（\`openssl ts -verify\`）を案内します。既定の TSA
+（FreeTSA）は認定タイムスタンプ局ではありません。`,
     llm: `システムは LLM なしで完全に動作します。接続すると自動下書きの記述がより自然になります。
 
 - 設定 → **AI エンジン（LLM）**（データ管理責任者専用）: Anthropic Claude・Google Gemini・
@@ -560,10 +621,15 @@ G3 の達成表記の検査は、構造化された項目だけでなく、測�
 **セキュリティ設計**
 
 1. **完全オフライン** — CSP \`connect-src 'self'\` により外部送信そのものを遮断
-   （AI エンジン接続時のみ、当該 3 社のエンドポイントを例外とします）。
+   （AI エンジン接続時のみ、当該 3 社のエンドポイントを例外とします。タイムスタンプを
+   有効にした場合は、ローカルサーバーが封印ハッシュ 32 バイトのみを TSA へ中継します —
+   本文はいかなる場合も端末を離れません）。
 2. **ローカルサーバー専用** — \`localhost\` にのみバインドし、外部には公開しません。
 3. **改ざん検出** — アップロード原本は SHA-256、確定ノートは本文＋署名のハッシュチェーン。
-4. **監査証跡** — ゲート判定・署名・確定・バックアップ・復元・権限譲渡を追記専用で記録。`,
+4. **監査証跡** — ゲート判定・署名・確定・バックアップ・復元・権限譲渡を追記専用で記録。
+5. **PIN の保存** — PBKDF2-SHA256（210,000 回・利用者ごとのソルト）。v2.1 より前の
+   ハッシュは、次回の正常入力時にその場で昇格されます。PIN はアクセス統制ではありません —
+   実際の統制は共有フォルダの OS 権限です。`,
     testing: `実際の文書がなくてもシステムを試せます。
 
 1. **サンプル文書** — \`sample_docs/\` のサンプル計画書・指標表をオンボーディングでアップロード。

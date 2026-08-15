@@ -84,19 +84,26 @@ Google·OpenAI) 엔드포인트뿐**입니다 — 사용자가 직접 연결했�
 나중에 발견하기보다 먼저 밝힙니다.
 
 - **LIMS 가 아닙니다.** 시료·재고 관리, 장비 연동, 실시간 공동편집, 모바일 앱이 없습니다.
-- **사용자 신원은 로컬 PIN** 이며 인증서 기반 인증이 아닙니다. 실제 접근 통제는 공유폴더의
-  OS 권한으로 수행하십시오.
-- **시각은 기기 시계**이며 공인 시점인증 기관의 것이 아닙니다.
-- **따라서 인증서 기반 전자서명이나 공인 시점인증을 요구하는 어떤 제도도 충족할 수
-  없습니다** — 하나의 기술적 사실이 나라마다 다른 이름으로 불릴 뿐입니다:
+- **신원은 자기 선언입니다.** 서명에는 기기 키(ECDSA P-256, 추출 불가)가 함께 실리고
+  선택적으로 패스키(WebAuthn·Touch ID 등)를 더할 수 있으며, 둘 다 봉인 해시에 잠겨
+  확정 후 서명자 바꿔치기는 체인 파손으로 드러납니다. 그러나 그 키가 *그 사람*이라는
+  보증은 인증기관 없이 성립하지 않습니다. PIN 은 PBKDF2-SHA256(210,000회·솔트)으로
+  저장되지만 접근 통제가 아닙니다 — 실제 접근 통제는 공유폴더의 OS 권한으로 수행하십시오.
+- **시각은 기본적으로 기기 시계입니다.** 설정에서 RFC-3161 시점인증을 켜면 확정 시 봉인
+  해시(해시 32바이트만, 본문·파일 아님)를 TSA 로 보내 서명된 토큰을 받아 붙입니다 —
+  기본은 꺼짐이고, 오프라인이면 조용히 기기 시계로만 기록합니다. 기본 TSA(FreeTSA)는
+  공인·적격 시점인증 기관이 아닙니다.
+- **인증서 기반 전자서명이나 공인 시점인증을 요구하는 제도는 위 보강으로도 여전히
+  충족하지 못합니다** — 하나의 기술적 사실이 나라마다 다른 이름으로 불릴 뿐입니다:
   **국가연구개발사업 연구노트 지침이 요구하는 전자서명인증**(전자서명법 제2조제5호·한국),
   **21 CFR Part 11**(미국 FDA), **eIDAS 적격 전자서명·적격 타임스탬프**와 **EU GMP Annex 11**(EU),
   **ER/ES 지침**(일본). 규제 기록 시스템이 아니라 연구 무결성·재현성 도구입니다.
   조문별 상세와 무엇이 확인 가능하고 무엇이 아닌지는
   [컴플라이언스 매트릭스](https://hopejsh.github.io/aaa-rns/compliance.html),
   위협 모델은 [SECURITY.md](SECURITY.md).
-- 해시 체인은 **내부 정합성**을 증명합니다. 체인의 머리가 기록 보유자의 통제 밖에 고정되기
-  전까지는 변조 **탐지(tamper-evident)**이지 변조 불가가 아닙니다.
+- 해시 체인은 **내부 정합성**을 증명합니다. 기본 상태에서는 변조 **탐지(tamper-evident)**이지
+  변조 불가가 아닙니다. RFC-3161 을 켜면 확정 시각과 봉인 해시가 기록 보유자의 통제 밖
+  (TSA 의 서명)에 고정됩니다 — 그 이전의 기록에는 소급 적용되지 않습니다.
 
 자금이 넉넉하고 클라우드에 거부감이 없으며 서열·화학 도구가 깊게 필요한 연구실이라면
 Benchling 이나 Revvity 가 더 낫습니다. 이 제품은 그 도구들이 닿지 못하는 연구실을 위한
@@ -154,14 +161,14 @@ node simulation/run_simulation.mjs --campaign 2 --cycle 9 --iters 150000
 [`CITATION.cff`](CITATION.cff) 가 있어 GitHub 사이드바의 **"Cite this repository"** 버튼이
 APA·BibTeX 형식을 자동으로 만들어 줍니다.
 
-> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.0.1)
+> Jung, S. H. (2026). *AAA-RNS: AI Agent-driven Autonomous Research Notebook System* (Version 2.1.0)
 > [Computer software]. https://doi.org/10.5281/zenodo.21937754
 
 ```bibtex
 @software{jung_aaarns_2026,
   author    = {Jung, Seung Ho},
   title     = {{AAA-RNS: AI Agent-driven Autonomous Research Notebook System}},
-  version   = {2.0.1},
+  version   = {2.1.0},
   year      = {2026},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.21937754},

@@ -207,24 +207,24 @@
   <div class="limits">
     <ul data-i18n="en">
       <li><b>This is not a LIMS.</b> No sample or inventory management, no instrument integrations, no real-time co-editing, no mobile app.</li>
-      <li><b>User identity is a locally-set PIN</b>, not certificate-based authentication. Real access control comes from the operating system's permissions on your shared folder.</li>
-      <li><b>Timestamps come from the machine's clock</b>, not an accredited timestamping authority.</li>
-      <li><b>It therefore cannot meet any regime that requires a certificate-based signature or an accredited timestamp</b> — one technical fact with a different name in each jurisdiction: 21 CFR Part 11 (US), eIDAS qualified signatures and EU GMP Annex 11 (EU), the ER/ES guideline (Japan), and the 전자서명인증 required by Korea's 연구노트 지침. <a href="compliance.html">The clause-by-clause position is published in full.</a></li>
-      <li><b>The hash chain proves internal consistency.</b> It is tamper-<em>evident</em>, not tamper-proof, until the chain head is anchored outside the control of whoever holds the records.</li>
+      <li><b>Identity is self-asserted.</b> Signatures carry a non-extractable device key (ECDSA P-256) and optionally a passkey, both locked under the seal hash — but no certificate authority vouches for who holds the key. The PIN (PBKDF2-SHA256, salted) is not access control; that comes from the operating system's permissions on your shared folder.</li>
+      <li><b>Timestamps default to the machine's clock.</b> Opt-in RFC-3161 timestamping sends the 32-byte seal hash — never content — to a TSA on sealing and attaches the signed token. Off by default; offline it falls back silently. The default TSA (FreeTSA) is not an accredited authority.</li>
+      <li><b>It still cannot meet any regime that requires a certificate-based signature or an accredited timestamp</b> — one technical fact with a different name in each jurisdiction: 21 CFR Part 11 (US), eIDAS qualified signatures and EU GMP Annex 11 (EU), the ER/ES guideline (Japan), and the 전자서명인증 required by Korea's 연구노트 지침. <a href="compliance.html">The clause-by-clause position is published in full.</a></li>
+      <li><b>The hash chain proves internal consistency.</b> By default it is tamper-<em>evident</em>, not tamper-proof. With RFC-3161 enabled, each sealed note's hash and time are anchored outside the record-holder's control — never retroactively.</li>
     </ul>
     <ul data-i18n="ko">
       <li><b>LIMS 가 아닙니다.</b> 시료·재고 관리, 장비 연동, 실시간 공동편집, 모바일 앱이 없습니다.</li>
-      <li><b>사용자 신원은 로컬 PIN</b> 이며 인증서 기반 인증이 아닙니다. 실제 접근 통제는 공유폴더의 OS 권한으로 수행하십시오.</li>
-      <li><b>시각은 기기 시계</b>이며 공인 시점인증 기관의 것이 아닙니다.</li>
-      <li><b>따라서 인증서 기반 서명이나 공인 시점인증을 요구하는 어떤 제도도 충족할 수 없습니다</b> — 하나의 기술적 사실이 나라마다 다른 이름으로 불릴 뿐입니다: 연구노트 지침이 요구하는 전자서명인증(한국), 21 CFR Part 11(미국), eIDAS 적격 서명과 EU GMP Annex 11(EU), ER/ES 지침(일본). <a href="compliance.html">조문별 상세를 전부 공개합니다.</a></li>
-      <li><b>해시 체인은 내부 정합성을 증명합니다.</b> 체인의 머리가 기록 보유자의 통제 밖에 고정되기 전까지는 변조 <em>탐지</em>이지 변조 불가가 아닙니다.</li>
+      <li><b>신원은 자기 선언입니다.</b> 서명에는 추출 불가 기기 키(ECDSA P-256)와 선택적 패스키가 실려 봉인 해시에 잠기지만, 그 키의 주인이 누구인지는 어떤 인증기관도 보증하지 않습니다. PIN(PBKDF2-SHA256·솔트)은 접근 통제가 아닙니다 — 실제 접근 통제는 공유폴더의 OS 권한으로 수행하십시오.</li>
+      <li><b>시각은 기본적으로 기기 시계입니다.</b> RFC-3161 시점인증을 켜면 확정 시 봉인 해시 32바이트만 — 본문은 결코 아님 — TSA 로 보내 서명된 토큰을 붙입니다. 기본 꺼짐이고 오프라인이면 조용히 기기 시계로 돌아갑니다. 기본 TSA(FreeTSA)는 공인 기관이 아닙니다.</li>
+      <li><b>인증서 기반 서명이나 공인 시점인증을 요구하는 제도는 여전히 충족하지 못합니다</b> — 하나의 기술적 사실이 나라마다 다른 이름으로 불릴 뿐입니다: 연구노트 지침이 요구하는 전자서명인증(한국), 21 CFR Part 11(미국), eIDAS 적격 서명과 EU GMP Annex 11(EU), ER/ES 지침(일본). <a href="compliance.html">조문별 상세를 전부 공개합니다.</a></li>
+      <li><b>해시 체인은 내부 정합성을 증명합니다.</b> 기본 상태에서는 변조 <em>탐지</em>이지 변조 불가가 아닙니다. RFC-3161 을 켜면 확정 시각과 봉인 해시가 기록 보유자의 통제 밖에 고정됩니다 — 소급 적용은 되지 않습니다.</li>
     </ul>
     <ul data-i18n="ja">
       <li><b>LIMS ではありません。</b> 試料・在庫管理、装置連携、リアルタイム共同編集、モバイルアプリはありません。</li>
-      <li><b>利用者の識別はローカルの PIN</b> であり、証明書ベースの認証ではありません。実際のアクセス統制は共有フォルダの OS 権限で行ってください。</li>
-      <li><b>時刻は端末の時計</b>であり、認定タイムスタンプ局のものではありません。</li>
-      <li><b>したがって、証明書ベースの署名や認定タイムスタンプを要求するいかなる制度も満たせません</b> — 一つの技術的事実が国ごとに別の名前で呼ばれているだけです: ER/ES 指針（日本）、21 CFR Part 11（米国）、eIDAS の適格署名と EU GMP Annex 11（EU）、研究ノート指針が求める電子署名認証（韓国）。<a href="compliance.html">条項ごとの立場を全文公開しています。</a></li>
-      <li><b>ハッシュチェーンが証明するのは内部整合性です。</b> チェーンの先端が記録保有者の管理外に固定されるまでは、改ざん<em>検出可能</em>であって改ざん不可能ではありません。</li>
+      <li><b>本人性は自己申告です。</b> 署名には抽出不可の端末キー（ECDSA P-256）と任意のパスキーが載り、封印ハッシュに閉じ込められます — ただし、その鍵の持ち主が誰かは、どの認証局も保証しません。PIN（PBKDF2-SHA256・ソルト付き）はアクセス統制ではありません — 実際の統制は共有フォルダの OS 権限で行ってください。</li>
+      <li><b>時刻は既定では端末の時計です。</b> RFC-3161 タイムスタンプを有効にすると、確定時に封印ハッシュ 32 バイトのみ — 本文は決して送りません — を TSA に送り、署名済みトークンを添付します。既定はオフで、オフライン時は端末時計に戻ります。既定の TSA（FreeTSA）は認定局ではありません。</li>
+      <li><b>証明書ベースの署名や認定タイムスタンプを要求する制度は、依然として満たせません</b> — 一つの技術的事実が国ごとに別の名前で呼ばれているだけです: ER/ES 指針（日本）、21 CFR Part 11（米国）、eIDAS の適格署名と EU GMP Annex 11（EU）、研究ノート指針が求める電子署名認証（韓国）。<a href="compliance.html">条項ごとの立場を全文公開しています。</a></li>
+      <li><b>ハッシュチェーンが証明するのは内部整合性です。</b> 既定では改ざん<em>検出可能</em>であって改ざん不可能ではありません。RFC-3161 を有効にすると、確定時刻と封印ハッシュが記録保有者の管理外に固定されます — 遡及はしません。</li>
     </ul>
   </div>
 </div></section>
@@ -321,7 +321,7 @@
   <p class="lede" data-i18n="ko">보통은 개념 DOI 를 인용하십시오 — 항상 최신 릴리스로 연결됩니다. 재현성 진술처럼 정확한 바이트가 문제가 될 때는 버전 DOI 를 인용합니다.</p>
   <p class="lede" data-i18n="ja">通常はコンセプト DOI を引用してください — 常に最新のリリースへ解決されます。再現性の記述のように正確なバイトが問題になる場合はバージョン DOI を引用します。</p>
   <pre>Jung, S. H. (2026). AAA-RNS: AI Agent-driven Autonomous Research Notebook System
-(Version 2.0.1) [Computer software]. https://doi.org/10.5281/zenodo.21937754</pre>
+(Version 2.1.0) [Computer software]. https://doi.org/10.5281/zenodo.21937754</pre>
 </div></section>
 
 <footer><div class="wrap">
