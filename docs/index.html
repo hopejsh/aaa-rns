@@ -22,14 +22,6 @@
     --sans:'Barlow',-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR','Noto Sans JP',sans-serif;
     --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
   }
-  @media (prefers-color-scheme:dark){
-    :root:not([data-theme="light"]){
-      --ink:#e8edf3; --ink-2:#c3cedb; --paper:#141c26; --wash:#1b2531;
-      --line:#2c3947; --muted:#93a2b4; --accent:#7aa9e8; --accent-soft:#1b2b41;
-      --ok:#6ed09b; --ok-soft:#16301f; --warn:#e0b366; --warn-soft:#302512;
-      --no:#e58b8b; --no-soft:#331a1a;
-    }
-  }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{background:var(--paper);color:var(--ink);font-family:var(--sans);
@@ -137,8 +129,8 @@
 
 <header class="hero"><div class="wrap">
   <h1 data-i18n="en">A research notebook that refuses to seal an unsupported claim.</h1>
-  <h1 data-i18n="ko">증거가 뒷받침하지 않는 주장은 <br class="wide">확정하지 않는 연구노트.</h1>
-  <h1 data-i18n="ja">証拠が裏付けない主張は<br class="wide">確定しない研究ノート。</h1>
+  <h1 data-i18n="ko">근거 없는 문장은 <br class="wide">기록으로 남지 않습니다.</h1>
+  <h1 data-i18n="ja">根拠のない文は<br class="wide">記録に残りません。</h1>
 
   <p class="sub" data-i18n="en">Upload your project documents and it builds a notebook system shaped around your project. Feed it lab logs and measurement files and it drafts each note from them — every sentence carrying the evidence ID it came from. No server, no cloud account, no Docker, no IT department.</p>
   <p class="sub" data-i18n="ko">연구개발계획서를 올리면 그 과제에 맞는 연구노트 체계를 스스로 구성합니다. 실험일지와 측정 데이터를 넣으면 노트를 자동으로 집필하고, 모든 문장에 근거가 된 증거번호가 붙습니다. 서버도, 클라우드 계정도, Docker 도, 전산 담당자도 필요 없습니다.</p>
@@ -161,7 +153,7 @@
   </div>
 
   <figure class="shot">
-    <img src="assets/demo.gif" alt="Twenty-four seconds from unzip to a sealed research note: the project plan is uploaded, extraction shows a source and a confidence per value, an experiment log and a measurement CSV are attached by SHA-256, the sections are drafted with [E#] citations, four gates run, two people sign, and the note is sealed" width="1600" height="900">
+    <img src="assets/demo.gif" alt="Thirty-four seconds from unzip to a sealed research note: the project plan is uploaded, extraction shows a source and a confidence per value, an experiment log and a measurement CSV are attached by SHA-256, the sections are drafted with [E#] citations, four gates run, two people sign, and the note is sealed" width="1600" height="900">
     <figcaption data-i18n="en">Four deterministic gates run before a note can be sealed. A note with outstanding findings does not get sealed — and nothing is thrown away: the text and the findings are both kept.</figcaption>
     <figcaption data-i18n="ko">확정 전에 결정론 게이트 넷이 실행됩니다. 지적이 남은 노트는 확정되지 않으며, 아무것도 버리지 않습니다 — 본문과 지적사항이 함께 보존됩니다.</figcaption>
     <figcaption data-i18n="ja">確定の前に決定論的なゲートが 4 つ実行されます。指摘が残っているノートは確定されず、何も破棄しません — 本文と指摘の双方が保存されます。</figcaption>
