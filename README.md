@@ -182,9 +182,10 @@ produces APA and BibTeX for you.
 ```
 
 Zenodo issues two DOIs. **`10.5281/zenodo.21937754`** is the *concept* DOI and always resolves to
-the newest release — cite this one normally. **`10.5281/zenodo.21937755`** is the *version* DOI,
-frozen to v2.0.0; cite it instead when the exact bytes matter, such as in a reproducibility
-statement or a methods section describing a specific analysis.
+the newest release — cite this one normally. **`10.5281/zenodo.21955354`** is the *version* DOI,
+frozen to v2.1.0 (this release); cite it instead when the exact bytes matter, such as in a
+reproducibility statement or a methods section describing a specific analysis. Every earlier
+release keeps its own version DOI, listed under the concept DOI on Zenodo.
 
 ## License
 

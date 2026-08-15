@@ -22,6 +22,8 @@ default TSA is not an accredited service — the compliance matrix rows moved by
 release are marked there, and the ones that did not move are marked too.
 
 ### Added
+- Archived on Zenodo: version DOI `10.5281/zenodo.21955354` (frozen to this release);
+  the concept DOI `10.5281/zenodo.21937754` continues to resolve to the latest.
 - **Device-key signatures** (`js/core/signing.js`): every user gets an ECDSA P-256 key
   pair on registration, generated non-extractable and kept in the browser's IndexedDB.
   The private key cannot be exported and never enters the shared folder; the public key

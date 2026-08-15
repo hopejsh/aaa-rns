@@ -17,7 +17,7 @@ authors:
     email: seung.jung@gmail.com
     orcid: "https://orcid.org/0000-0001-7914-5306"
 version: 2.1.0
-date-released: "2026-08-14"
+date-released: "2026-08-15"
 license: Apache-2.0
 repository-code: "https://github.com/hopejsh/aaa-rns"
 url: "https://github.com/hopejsh/aaa-rns"
@@ -30,9 +30,12 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.21937754
     description: Concept DOI — always resolves to the latest release
+  # 이 항목은 릴리스마다 손으로 갱신해야 한다: 새 버전 DOI 는 태그를 민 뒤
+  # Zenodo 웹훅이 발급하므로, 릴리스 시점의 CI 는 이 값을 강제할 수 없다.
+  # v2.0.1 이 이 갱신을 놓쳤고, 그래서 이 주석이 있다.
   - type: doi
-    value: 10.5281/zenodo.21937755
-    description: Version DOI — permanently fixed to v2.0.0 (the first release)
+    value: 10.5281/zenodo.21955354
+    description: Version DOI — permanently fixed to v2.1.0 (this release)
 keywords:
   - electronic lab notebook
   - research data management
