@@ -9,11 +9,11 @@
  * 루트 VERSION 파일과 이 값이 일치하는지 검사한 뒤에야 압축한다.
  * ════════════════════════════════════════════════════════════════ */
 
-export const APP_VERSION = '2.0.1';
-export const BUILD_DATE = '2026-08-14';
+export const APP_VERSION = '2.1.0';
+export const BUILD_DATE = '2026-08-15';
 
-/* 검증 시뮬레이션 누적 — 캠페인 1(12사이클) + 캠페인 2(9사이클).
+/* 검증 시뮬레이션 누적 — 캠페인 1(12) + 캠페인 2(9) + 캠페인 3(2사이클).
    simulation/reports/ 의 실제 보고서 합계와 일치해야 하며,
    tools/verify-dist.sh 가 이 값을 보고서에서 재계산해 대조한다. */
-export const VERIFY_CYCLES = 21;
-export const VERIFY_RUNS = 2446015;
+export const VERIFY_CYCLES = 23;
+export const VERIFY_RUNS = 2746017;

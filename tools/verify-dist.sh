@@ -53,7 +53,8 @@ done < <(find "$ROOT" \( -name '*.docx' -o -name '*.xlsx' -o -name '*.pptx' \) 2
 # 5. 실행에 필요한 파일이 다 있는가 ──────────────────────────
 MISS=""
 for f in index.html server.py server.ps1 start_mac.command start_windows.bat \
-         css/app.css js/ui/app.js js/core/edition.js js/core/version.js LICENSE NOTICE; do
+         css/app.css js/ui/app.js js/core/edition.js js/core/version.js \
+         js/core/signing.js js/core/timestamp.js LICENSE NOTICE; do
   [ -f "$ROOT/$f" ] || MISS="$MISS $f"
 done
 [ -z "$MISS" ] && say "필수 파일 존재" "통과" || bad "필수 파일 존재" "누락:$MISS"
@@ -71,8 +72,11 @@ done < <(find "$ROOT/js" -name '*.js' 2>/dev/null)
 [ "$UNRES" -eq 0 ] && say "모듈 import 전부 해소" "통과" || bad "모듈 import 전부 해소" "미해소 참조 있음"
 
 # 7. 외부 네트워크 참조 ──────────────────────────────────────
+# freetsa.org 는 RFC-3161 시점인증(TSA) 기본값이다. 기본 꺼짐이고, 켜도
+# 봉인 해시(32바이트)만 나간다 — 본문·파일은 나가지 않는다. 코드 상수로
+# 남아 있는 것이 정상이므로 허용 목록에 둔다.
 CDN="$(grep -rIoE 'https?://[a-z0-9.-]+' "$ROOT" --include='*.html' --include='*.js' --include='*.css' 2>/dev/null \
-       | grep -vE 'api\.anthropic\.com|generativelanguage\.googleapis\.com|api\.openai\.com|www\.w3\.org|schemas\.openxmlformats\.org|purl\.org|apache\.org|localhost' \
+       | grep -vE 'api\.anthropic\.com|generativelanguage\.googleapis\.com|api\.openai\.com|freetsa\.org|www\.w3\.org|schemas\.openxmlformats\.org|purl\.org|apache\.org|localhost' \
        | sort -u | head -3)"
 [ -z "$CDN" ] && say "CDN·외부 자산 참조 없음" "통과" || bad "CDN·외부 자산 참조 없음" "$(echo "$CDN" | tr '\n' ' ')"
 

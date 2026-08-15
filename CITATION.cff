@@ -16,7 +16,7 @@ authors:
     family-names: Jung
     email: seung.jung@gmail.com
     orcid: "https://orcid.org/0000-0001-7914-5306"
-version: 2.0.1
+version: 2.1.0
 date-released: "2026-08-14"
 license: Apache-2.0
 repository-code: "https://github.com/hopejsh/aaa-rns"
