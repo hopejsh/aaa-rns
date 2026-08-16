@@ -1,0 +1,140 @@
+# ══════════════════════════════════════════════════════════════
+#  Windows smoke — 실제 Windows 에서 사용자 진입 경로를 그대로 검증
+#
+#  왜 있는가: 개발 기계는 macOS 다. Windows 사용자의 두 진입 경로 —
+#  ① Python 이 있는 경우 start_windows.bat → python server.py,
+#  ② Python 이 없는 경우 → Windows PowerShell 5.1 + server.ps1 —
+#  는 실제 Windows 에서만 확인할 수 있다. GUI(더블클릭·SmartScreen)는
+#  러너로 검증할 수 없으므로, 그 아래의 전 과정을 검증한다.
+#
+#  /tsa 단계만 continue-on-error: 외부 TSA(FreeTSA)가 내려가 있어도
+#  이 저장소의 코드가 틀렸다는 뜻이 아니기 때문이다. 로그로 판정한다.
+# ══════════════════════════════════════════════════════════════
+name: Windows smoke
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - server.py
+      - server.ps1
+      - start_windows.bat
+      - .github/workflows/windows-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Helper functions
+        shell: pwsh
+        run: |
+          @'
+          function Wait-Port([int]$Port) {
+            for ($i = 0; $i -lt 60; $i++) {
+              try { Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:$Port/index.html" -TimeoutSec 2 | Out-Null; return $true }
+              catch { Start-Sleep -Milliseconds 500 }
+            }
+            return $false
+          }
+          function Stop-ByPort([int]$Port) {
+            Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue |
+              ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
+            Start-Sleep -Milliseconds 500
+          }
+          '@ | Set-Content -Path "$env:RUNNER_TEMP\helpers.ps1"
+
+      - name: "1) start_windows.bat - the double-click path (Python present)"
+        shell: pwsh
+        run: |
+          . "$env:RUNNER_TEMP\helpers.ps1"
+          $env:AAARNS_NO_OPEN = '1'
+          Start-Process cmd -ArgumentList '/c', 'start_windows.bat' -WindowStyle Hidden
+          if (-not (Wait-Port 8777)) { Get-Content "$env:RUNNER_TEMP\*.log" -ErrorAction SilentlyContinue; throw "bat: server did not come up on 8777" }
+          $idx = Invoke-WebRequest -UseBasicParsing http://localhost:8777/index.html
+          if ($idx.StatusCode -ne 200) { throw "index.html -> $($idx.StatusCode)" }
+          Invoke-WebRequest -UseBasicParsing http://localhost:8777/js/core/timestamp.js -OutFile "$env:RUNNER_TEMP\served.js"
+          $a = (Get-FileHash "$env:RUNNER_TEMP\served.js").Hash
+          $b = (Get-FileHash "js/core/timestamp.js").Hash
+          if ($a -ne $b) { throw "subdirectory module served with different bytes" }
+          Write-Host "OK: bat -> python server, index 200, subdir module byte-identical"
+          Stop-ByPort 8777
+
+      - name: "2) server.ps1 under Windows PowerShell 5.1 - the no-Python path"
+        shell: pwsh
+        run: |
+          . "$env:RUNNER_TEMP\helpers.ps1"
+          $env:AAARNS_NO_OPEN = '1'
+          Start-Process powershell -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File','server.ps1','8778' -WindowStyle Hidden
+          if (-not (Wait-Port 8778)) { throw "server.ps1 did not come up on 8778 under powershell 5.1" }
+          $idx = Invoke-WebRequest -UseBasicParsing http://localhost:8778/index.html
+          if ($idx.StatusCode -ne 200) { throw "index.html -> $($idx.StatusCode)" }
+          Invoke-WebRequest -UseBasicParsing http://localhost:8778/js/core/timestamp.js -OutFile "$env:RUNNER_TEMP\served2.js"
+          if ((Get-FileHash "$env:RUNNER_TEMP\served2.js").Hash -ne (Get-FileHash "js/core/timestamp.js").Hash) {
+            throw "5.1: subdirectory module served with different bytes"
+          }
+          # 루트 밖 탈출 — http.sys 정규화든 앱 검사든, 200 으로 win.ini 가 나오면 안 된다
+          foreach ($p in '/../../../../windows/win.ini', '/..%5c..%5c..%5cwindows%5cwin.ini', '/%2e%2e/%2e%2e/windows/win.ini') {
+            $code = (& curl.exe -s -o NUL -w "%{http_code}" --path-as-is "http://localhost:8778$p")
+            if ($code -eq '200') { throw "path escape returned 200: $p" }
+            Write-Host "  escape blocked ($code): $p"
+          }
+          # /tsa 과대 본문 -> 400
+          $junk = New-Object byte[] 5000; (New-Object Random).NextBytes($junk)
+          [IO.File]::WriteAllBytes("$env:RUNNER_TEMP\junk.bin", $junk)
+          $code = (& curl.exe -s -o NUL -w "%{http_code}" -X POST --data-binary "@$env:RUNNER_TEMP\junk.bin" -H "Content-Type: application/timestamp-query" http://localhost:8778/tsa)
+          if ($code -ne '400') { throw "/tsa oversize body -> $code (expected 400)" }
+          Write-Host "OK: 5.1 server - static byte-identical, escapes blocked, oversize 400"
+
+      - name: "3) /tsa real RFC-3161 roundtrip through the 5.1 server"
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          @'
+          import { pathToFileURL } from "node:url";
+          const m = await import(pathToFileURL(process.argv[2]).href);
+          const hash = "5ab17513c85bc931b83a6c17da0d37a70ae9bca69ae18b01997d86d86063e8ee";
+          const tsq = m.buildTsq(hash);
+          const r = await fetch("http://localhost:8778/tsa", { method: "POST",
+            headers: { "Content-Type": "application/timestamp-query" }, body: tsq });
+          if (r.status !== 200) { console.error("proxy status", r.status); process.exit(1); }
+          const buf = new Uint8Array(await r.arrayBuffer());
+          const p = m.parseTsr(buf);
+          if (!p.statusOk || p.imprintHex !== hash) { console.error("bad TSR", p.statusOk, p.imprintHex); process.exit(1); }
+          console.log("OK: /tsa on Windows 5.1 ->", buf.length, "bytes, genTime", p.genTimeIso);
+          '@ | Set-Content -Path "$env:RUNNER_TEMP\tsa-check.mjs"
+          node "$env:RUNNER_TEMP\tsa-check.mjs" "$PWD\js\core\timestamp.js"
+
+      - name: "4) stop 5.1 server"
+        shell: pwsh
+        run: |
+          . "$env:RUNNER_TEMP\helpers.ps1"
+          Stop-ByPort 8778
+
+      - name: "5) the shipped zip - what a user actually downloads"
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          . "$env:RUNNER_TEMP\helpers.ps1"
+          $dir = "$env:RUNNER_TEMP\relzip"
+          New-Item -ItemType Directory -Path $dir | Out-Null
+          gh release download --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir $dir
+          $zip = Get-ChildItem $dir -Filter *.zip | Select-Object -First 1
+          Expand-Archive -Path $zip.FullName -DestinationPath "$dir\x"
+          $root = Get-ChildItem "$dir\x" -Directory | Select-Object -First 1
+          foreach ($f in 'index.html','server.py','server.ps1','start_windows.bat','js/core/signing.js','js/core/timestamp.js') {
+            if (-not (Test-Path (Join-Path $root.FullName $f))) { throw "zip missing $f" }
+          }
+          $env:AAARNS_NO_OPEN = '1'
+          Start-Process powershell -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File',"$($root.FullName)\server.ps1",'8779' -WorkingDirectory $root.FullName -WindowStyle Hidden
+          if (-not (Wait-Port 8779)) { throw "zip's server.ps1 did not come up on 8779" }
+          $idx = Invoke-WebRequest -UseBasicParsing http://localhost:8779/index.html
+          $js  = Invoke-WebRequest -UseBasicParsing http://localhost:8779/js/ui/app.js
+          if ($idx.StatusCode -ne 200 -or $js.StatusCode -ne 200) { throw "zip serve failed: $($idx.StatusCode)/$($js.StatusCode)" }
+          Write-Host "OK: released zip unpacks and serves on Windows PowerShell 5.1"
+          Stop-ByPort 8779
