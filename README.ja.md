@@ -32,6 +32,11 @@
 | Windows | `start_windows.bat` をダブルクリック |
 | 共通 | `python3 server.py` → `http://localhost:8777` |
 
+> **初回のみ:** ダウンロードした zip から取り出したファイルは、実行前に OS が確認を
+> 求めます — macOS では `start_mac.command` を**右クリック → 開く**（またはシステム設定 →
+> プライバシーとセキュリティ → 「このまま開く」）、Windows では SmartScreen の
+> **詳細情報 → 実行**をクリックします。以後はダブルクリックだけで開きます。
+
 登録キー・アカウント・インストーラーは不要です。Chrome または Edge を推奨します（共有
 フォルダモードが File System Access API を使用します）。前提は Python 3 だけで、macOS と
 多くの Linux には既に入っています。

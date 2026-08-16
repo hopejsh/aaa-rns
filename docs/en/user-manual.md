@@ -10,6 +10,9 @@
 | Windows | Double-click `start_windows.bat` |
 | Manual | Run `python3 server.py`, then open `http://localhost:8777` |
 
+- **First run only**: the OS checks files extracted from a downloaded zip — on macOS,
+  right-click `start_mac.command` → Open; on Windows, click More info → Run anyway on the
+  SmartScreen prompt. After that, a double-click is enough.
 - Recommended browsers: **Chrome or Edge** (shared-folder connection works only in these two)
 - No internet connection is required. Everything is processed on this PC.
 - The server window (the black one) is the engine. Leave it open while you work.

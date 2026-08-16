@@ -30,6 +30,9 @@ M.ko = {
 | Windows | \`start_windows.bat\` 더블클릭 |
 | 수동 | \`python3 server.py\` 실행 후 \`http://localhost:8777\` 접속 |
 
+- **처음 한 번만**: 내려받은 zip 에서 꺼낸 파일은 OS 가 실행 전에 확인을 요구합니다 —
+  macOS 는 \`start_mac.command\` 우클릭 → 열기, Windows 는 SmartScreen 에서
+  추가 정보 → 실행. 이후에는 더블클릭만으로 열립니다.
 - 권장 브라우저: **Chrome 또는 Edge** (공유폴더 연결은 이 두 브라우저만 지원)
 - 인터넷 연결이 필요 없습니다. 모든 처리가 이 PC 안에서 끝납니다.
 - 서버 창(검은 창)은 시스템의 엔진입니다. 작업 중에는 닫지 마십시오.
@@ -237,6 +240,9 @@ M.en = {
 | Windows | Double-click \`start_windows.bat\` |
 | Manual | Run \`python3 server.py\`, then open \`http://localhost:8777\` |
 
+- **First run only**: the OS checks files extracted from a downloaded zip — on macOS,
+  right-click \`start_mac.command\` → Open; on Windows, click More info → Run anyway on the
+  SmartScreen prompt. After that, a double-click is enough.
 - Recommended browsers: **Chrome or Edge** (shared-folder connection works only in these two)
 - No internet connection is required. Everything is processed on this PC.
 - The server window (the black one) is the engine. Leave it open while you work.
@@ -458,6 +464,9 @@ M.ja = {
 | Windows | \`start_windows.bat\` をダブルクリック |
 | 手動 | \`python3 server.py\` を実行し \`http://localhost:8777\` を開く |
 
+- **初回のみ**: ダウンロードした zip から取り出したファイルは OS が実行前に確認を求めます —
+  macOS では \`start_mac.command\` を右クリック → 開く、Windows では SmartScreen の
+  詳細情報 → 実行をクリック。以後はダブルクリックだけで開きます。
 - 推奨ブラウザ: **Chrome または Edge**（共有フォルダ接続はこの二つのみ対応）
 - インターネット接続は不要です。すべての処理がこの PC 内で完結します。
 - サーバーウィンドウ（黒い画面）はシステムのエンジンです。作業中は閉じないでください。

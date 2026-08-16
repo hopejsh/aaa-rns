@@ -10,6 +10,9 @@
 | Windows | `start_windows.bat` 더블클릭 |
 | 수동 | `python3 server.py` 실행 후 `http://localhost:8777` 접속 |
 
+- **처음 한 번만**: 내려받은 zip 에서 꺼낸 파일은 OS 가 실행 전에 확인을 요구합니다 —
+  macOS 는 `start_mac.command` 우클릭 → 열기, Windows 는 SmartScreen 에서
+  추가 정보 → 실행. 이후에는 더블클릭만으로 열립니다.
 - 권장 브라우저: **Chrome 또는 Edge** (공유폴더 연결은 이 두 브라우저만 지원)
 - 인터넷 연결이 필요 없습니다. 모든 처리가 이 PC 안에서 끝납니다.
 - 서버 창(검은 창)은 시스템의 엔진입니다. 작업 중에는 닫지 마십시오.

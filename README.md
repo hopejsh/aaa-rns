@@ -32,6 +32,11 @@ Korean · English · Japanese, at parity.
 | Windows | double-click `start_windows.bat` |
 | Any | `python3 server.py` → open `http://localhost:8777` |
 
+> **First run only:** the OS checks files extracted from a downloaded zip before running
+> them — on macOS, **right-click `start_mac.command` → Open** (or System Settings → Privacy &
+> Security → "Open Anyway"); on Windows, click **More info → Run anyway** on the SmartScreen
+> prompt. After that, a double-click is enough.
+
 No registration key. No account. No installer. Chrome or Edge recommended (shared-folder mode
 uses the File System Access API). Python 3 is the only prerequisite, and macOS and most Linux
 systems already have it.
