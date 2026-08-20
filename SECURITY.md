@@ -51,8 +51,9 @@ code that runs anywhere near it is the GitHub Actions used by CI and the release
 release workflow holds `contents: write`.
 
 Those actions are therefore **pinned to full commit SHAs, not to tags**. A tag like `@v2` can be
-moved by the action's owner at any time; a commit SHA cannot. Dependabot proposes updates monthly
-as pull requests, so a new SHA is reviewed by a person rather than picked up silently.
+moved by the action's owner at any time; a commit SHA cannot. The repository deliberately runs no
+update bot: SHA bumps are made by the maintainer by hand and reviewed like any other commit, which
+for a dependency surface this small — a handful of pinned actions — is a workable trade.
 
 Released archives ship with a SHA-256 sum, and `tools/verify-dist.sh` will re-check any archive —
 including one you downloaded — against the same ten checks the build itself must pass.
