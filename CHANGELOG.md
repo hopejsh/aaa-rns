@@ -5,14 +5,14 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-### Pending
-- **RRID `SCR_028836`** was assigned by the SciCrunch registry on submission, but the
-  record is still `Pending` curation and `scicrunch.org/resolver/RRID:SCR_028836`
-  returns 404. It was briefly added to the READMEs, the landing page, `CITATION.cff`
-  and `codemeta.json`, then reverted: publishing an identifier that does not resolve is
-  the same defect this product exists to prevent, and `CITATION.cff` in particular is
-  harvested by tools that would propagate a dead identifier further than the mistake.
-  It goes back in once the resolver answers.
+### Added
+- **RRID `SCR_028836`** is recorded again — in the READMEs, the landing page,
+  `CITATION.cff` and `codemeta.json` — now that the condition stated here is met:
+  SciCrunch accepted the submission on 2026-08-17, curation completed, and
+  `scicrunch.org/resolver/RRID:SCR_028836` serves the full record (proper citation
+  `aaa-rns (RRID:SCR_028836)`, linked to the concept DOI). It had been reverted while
+  the resolver returned 404, because publishing an identifier that does not resolve
+  is the same defect this product exists to prevent.
 
 ## [2.1.0] — 2026-08-15
 

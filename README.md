@@ -192,6 +192,10 @@ frozen to v2.1.0 (this release); cite it instead when the exact bytes matter, su
 reproducibility statement or a methods section describing a specific analysis. Every earlier
 release keeps its own version DOI, listed under the concept DOI on Zenodo.
 
+If your journal uses Research Resource Identifiers, cite **AAA-RNS (RRID:SCR_028836)** inline
+in the Methods section. That is the registry entry, and it is separate from the DOI: the DOI
+belongs in the reference list, the RRID in the running text.
+
 ## License
 
 Apache License 2.0 — [LICENSE](LICENSE) · [NOTICE](NOTICE) · Copyright © 2026 Seung Ho Jung

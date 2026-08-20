@@ -187,6 +187,9 @@ Zenodo 는 DOI 를 두 개 발급합니다. **`10.5281/zenodo.21937754`** 는 *�
 **정확한 바이트가 문제가 될 때** 이쪽을 인용합니다. 이전 릴리스들의 버전 DOI 는 Zenodo 의
 개념 DOI 아래에 모두 나열되어 있습니다.
 
+RRID 를 쓰는 저널이라면 Methods 본문에 **AAA-RNS (RRID:SCR_028836)** 형태로 인용하십시오.
+레지스트리 등록 번호이며 DOI 와 역할이 다릅니다 — **DOI 는 참고문헌에, RRID 는 본문에** 들어갑니다.
+
 ## 라이선스
 
 Apache License 2.0 — [LICENSE](LICENSE) · [NOTICE](NOTICE) · Copyright © 2026 Seung Ho Jung

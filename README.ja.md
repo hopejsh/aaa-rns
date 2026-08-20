@@ -191,6 +191,10 @@ Zenodo は DOI を 2 つ発行します。**`10.5281/zenodo.21937754`** は*コ�
 述べる方法の節など、**正確なバイトが問題になる場合**にこちらを引用します。過去のリリースの
 バージョン DOI は、Zenodo のコンセプト DOI の下にすべて一覧されています。
 
+RRID を用いる雑誌であれば、Methods 本文に **AAA-RNS (RRID:SCR_028836)** の形で引用して
+ください。レジストリの登録番号であり、DOI とは役割が異なります — **DOI は参考文献に、
+RRID は本文に**入ります。
+
 ## ライセンス
 
 Apache License 2.0 — [LICENSE](LICENSE) · [NOTICE](NOTICE) · Copyright © 2026 Seung Ho Jung
